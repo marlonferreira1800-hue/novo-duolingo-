@@ -66,6 +66,12 @@ npm run test:e2e
 
 Os testes E2E usam Google Chrome instalado, viewport desktop 1366×900 e viewport mobile 390×844. Iniciam e encerram automaticamente servidores de teste em 127.0.0.1:3100 e :3101, com demonstração habilitada e bloqueada respectivamente. Faça build antes do E2E. Não usam a conta Wondering, serviços de IA ou dados reais de pacientes. Capturas ficam em `test-results/` (ignorado pelo Git). Testes em aparelho físico ainda são necessários.
 
+## Checkpoint D1–D4 executado (31/10/2026)
+
+- `npm run validate` completo verde: typecheck, lint, **145 testes unitários (10 arquivos)**, build e E2E por projeto (`NODE_OPTIONS=--max-old-space-size=768`, limite de RAM da máquina): **desktop 22/22** e **mobile 22/22**, incluindo a segunda lição (ciclo cardíaco) somando 20 XP no total.
+- Entregas: refinamentos de acessibilidade (D1), segunda lição bilíngue como rascunho `demo-unreviewed` (D2), QA ampliado com `tests/accessibility.spec.ts` (D3), planejamento Supabase/auth em [ADR 0002](docs/adr/0002-supabase-auth-and-data-contracts.md) sem código de backend (D4) e pacote de revisão médica em [docs/coordination/D8-medical-review-packet.md](docs/coordination/D8-medical-review-packet.md).
+- Conteúdo médico continua **sem revisão** e bloqueado em produção por padrão. Sem login, sem IA live, sem sincronização entre dispositivos.
+
 ## Checkpoint landing e separação de rotas
 
 - `npm run validate`: TypeScript, lint, 137 testes unitários (incluindo 50 de IA), build e 32 E2E aprovados.
