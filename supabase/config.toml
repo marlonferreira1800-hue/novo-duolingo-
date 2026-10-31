@@ -1,0 +1,36 @@
+# Supabase local development config
+# Run `npx supabase start` to spin up local emulators (requires Docker)
+
+project_id = "medora-local"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/app"]
+jwt_expiry = 3600
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+# Magic link template (local dev: emails are captured by Inbucket at :54324)
+[auth.email.template.magic_link]
+subject = "Medora — seu link de acesso"
+content_path = "./supabase/templates/magic-link.html"

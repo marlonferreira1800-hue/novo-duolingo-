@@ -3,11 +3,13 @@ import { lessonSchema } from '../src/contracts/learning';
 export const cardiacCycleLesson = lessonSchema.parse({
   id: 'cardiac-cycle',
   revision: 1,
-  questionId: 'cardiac-cycle-isovolumetric',
-  correctOptionId: 'valves-all-closed',
+  questionId: 'cardiac-cycle-order',
+  correctOptionId: 'cycle-order',
+  correctOrderIds: ['filling', 'atrial-systole', 'isovolumetric-contraction', 'ejection', 'isovolumetric-relaxation'],
   estimatedMinutes: 3,
   xp: 10,
   status: 'demo-unreviewed',
+  sectionId: 'cardio-physiology',
   sources: [
     {
       id: 'openstax-anatomy-physiology-2e-19-4',
@@ -20,6 +22,7 @@ export const cardiacCycleLesson = lessonSchema.parse({
     'pt-BR': {
       courseTitle: 'Sistema cardiovascular',
       sectionTitle: 'Fisiologia cardiovascular',
+      hook: 'Um único batimento esconde uma sequência precisa de eventos — você consegue colocá-los na ordem?',
       title: 'O ciclo cardíaco: diástole e sístole',
       description: 'Acompanhe a ordem das fases do ciclo cardíaco e o estado das valvas em cada uma delas.',
       objective: 'Distinguir diástole e sístole e prever o estado das valvas atrioventriculares e semilunares durante a contração isovolumétrica.',
@@ -56,27 +59,33 @@ export const cardiacCycleLesson = lessonSchema.parse({
         },
       ],
       question: {
-        prompt: 'No início da sístole ventricular, durante a contração isovolumétrica, o que acontece com as valvas do coração?',
-        options: [
+        type: 'order',
+        prompt: 'Coloque as fases do ciclo cardíaco na ordem correta, do enchimento até o relaxamento:',
+        items: [
           {
-            id: 'valves-all-closed',
-            label: 'Todas as valvas estão fechadas',
-            explanation: 'Correto: a pressão ventricular já superou a atrial (valvas AV fechadas), mas ainda não superou a arterial (semilunares fechadas). O volume ventricular não muda nessa fase.',
+            id: 'filling',
+            label: 'Enchimento ventricular (diástole)',
+            explanation: 'Início do ciclo: os ventrículos relaxados enchem de sangue com as valvas AV abertas.',
           },
           {
-            id: 'valves-av-open',
-            label: 'As valvas atrioventriculares estão abertas',
-            explanation: 'Não: ao começar a contração ventricular, a pressão no ventrículo supera a do átrio e as valvas atrioventriculares se fecham, produzindo S1.',
+            id: 'atrial-systole',
+            label: 'Sístole atrial',
+            explanation: 'Os átrios contraem e completam o enchimento ventricular no fim da diástole.',
           },
           {
-            id: 'valves-semilunar-open',
-            label: 'As valvas semilunares estão abertas',
-            explanation: 'Ainda não: a ejeção só começa quando a pressão ventricular supera a pressão arterial; antes disso as semilunares permanecem fechadas.',
+            id: 'isovolumetric-contraction',
+            label: 'Contração isovolumétrica',
+            explanation: 'Os ventrículos contraem com todas as valvas fechadas: a pressão sobe sem mudar o volume (gera S1).',
           },
           {
-            id: 'valves-all-open',
-            label: 'Todas as valvas estão abertas',
-            explanation: 'Não: não existe momento do ciclo em que as quatro valvas estejam abertas ao mesmo tempo, pois cada par abre em fases opostas do ciclo.',
+            id: 'ejection',
+            label: 'Ejeção ventricular',
+            explanation: 'A pressão ventricular supera a arterial, as semilunares abrem e o sangue é ejetado.',
+          },
+          {
+            id: 'isovolumetric-relaxation',
+            label: 'Relaxamento isovolumétrico',
+            explanation: 'Os ventrículos relaxam com todas as valvas fechadas: a pressão cai sem mudar o volume (gera S2), e o ciclo recomeça.',
           },
         ],
       },
@@ -84,6 +93,7 @@ export const cardiacCycleLesson = lessonSchema.parse({
     en: {
       courseTitle: 'Cardiovascular system',
       sectionTitle: 'Cardiovascular physiology',
+      hook: 'A single heartbeat hides a precise sequence of events — can you put them in order?',
       title: 'The cardiac cycle: diastole and systole',
       description: 'Follow the order of the cardiac cycle phases and the state of the valves in each one.',
       objective: 'Tell diastole and systole apart and predict the state of the atrioventricular and semilunar valves during isovolumetric contraction.',
@@ -120,27 +130,33 @@ export const cardiacCycleLesson = lessonSchema.parse({
         },
       ],
       question: {
-        prompt: 'At the start of ventricular systole, during isovolumetric contraction, what happens to the heart valves?',
-        options: [
+        type: 'order',
+        prompt: 'Put the phases of the cardiac cycle in the correct order, from filling to relaxation:',
+        items: [
           {
-            id: 'valves-all-closed',
-            label: 'All valves are closed',
-            explanation: 'Correct: ventricular pressure has already exceeded atrial pressure (AV valves closed) but not yet arterial pressure (semilunar valves closed). Ventricular volume does not change during this phase.',
+            id: 'filling',
+            label: 'Ventricular filling (diastole)',
+            explanation: 'Start of the cycle: the relaxed ventricles fill with blood while the AV valves are open.',
           },
           {
-            id: 'valves-av-open',
-            label: 'The atrioventricular valves are open',
-            explanation: 'No: as ventricular contraction begins, pressure in the ventricle exceeds atrial pressure and the atrioventricular valves close, producing S1.',
+            id: 'atrial-systole',
+            label: 'Atrial systole',
+            explanation: 'The atria contract and complete ventricular filling at the end of diastole.',
           },
           {
-            id: 'valves-semilunar-open',
-            label: 'The semilunar valves are open',
-            explanation: 'Not yet: ejection only begins when ventricular pressure exceeds arterial pressure; until then the semilunar valves remain closed.',
+            id: 'isovolumetric-contraction',
+            label: 'Isovolumetric contraction',
+            explanation: 'The ventricles contract with all valves closed: pressure rises without volume change (produces S1).',
           },
           {
-            id: 'valves-all-open',
-            label: 'All valves are open',
-            explanation: 'No: there is no moment in the cycle when all four valves are open at once, because each pair opens during opposite phases of the cycle.',
+            id: 'ejection',
+            label: 'Ventricular ejection',
+            explanation: 'Ventricular pressure exceeds arterial pressure, the semilunar valves open and blood is ejected.',
+          },
+          {
+            id: 'isovolumetric-relaxation',
+            label: 'Isovolumetric relaxation',
+            explanation: 'The ventricles relax with all valves closed: pressure falls without volume change (produces S2), and the cycle restarts.',
           },
         ],
       },

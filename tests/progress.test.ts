@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cardiacOutputLesson as lesson } from '../content/cardiac-output';
-import { progressKey, type LearningState, type LessonProgress } from '../src/contracts/learning';
+import { progressKey, questionOptions, type LearningState, type LessonProgress } from '../src/contracts/learning';
 import {
   completeLesson,
   earnedXp,
@@ -31,13 +31,13 @@ describe('learning progress', () => {
     const state = makeState();
 
     expect(getProgress(state, lesson)).toEqual({
-      stage: 0, selectedOptionId: null, submitted: false, completedAt: null,
+      stage: 0, selectedOptionId: null, orderedIds: null, submitted: false, completedAt: null,
     });
     expect(earnedXp(state, lesson)).toBe(0);
   });
 
   it.each(['pt-BR', 'en'] as const)('records canonical option IDs from %s without awarding XP', (locale) => {
-    for (const option of lesson.translations[locale].question.options) {
+    for (const option of questionOptions(lesson.translations[locale].question)!) {
       const before = makeProgress({ stage: 2 });
       const answer = recordAnswer(lesson, before, option.id);
       const state = updateProgress(makeState(), lesson, answer);
@@ -48,7 +48,7 @@ describe('learning progress', () => {
     }
   });
 
-  it.each(['unknown-option', '', lesson.translations.en.question.options[0].label])(
+  it.each(['unknown-option', '', questionOptions(lesson.translations.en.question)![0].label])(
     'ignores invalid option ID %j instead of accepting a translated label',
     (optionId) => {
       const before = correctAnswer();
@@ -60,7 +60,7 @@ describe('learning progress', () => {
     { name: 'no answer', progress: makeProgress() },
     { name: 'selected but not submitted', progress: makeProgress({ selectedOptionId: lesson.correctOptionId }) },
     { name: 'submitted without selection', progress: makeProgress({ submitted: true }) },
-    ...lesson.translations.en.question.options
+    ...questionOptions(lesson.translations.en.question)!
       .filter((option) => option.id !== lesson.correctOptionId)
       .map((option) => ({
         name: `incorrect answer ${option.id}`,
@@ -104,7 +104,7 @@ describe('learning progress', () => {
 
     for (const locale of ['en', 'pt-BR', 'en'] as const) {
       state = { ...state, uiLocale: locale, studyLocale: locale };
-      for (const option of lesson.translations[locale].question.options) {
+      for (const option of questionOptions(lesson.translations[locale].question)!) {
         const reviewed = recordAnswer(lesson, getProgress(state, lesson), option.id);
         const repeated = completeLesson(lesson, reviewed, new Date(laterCompletion));
         state = updateProgress(state, lesson, repeated);
@@ -174,3 +174,4 @@ describe('learning progress', () => {
     expect(next.lessons[key].completedAt).toBeNull();
   });
 });
+

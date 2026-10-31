@@ -41,6 +41,10 @@ describe('AI server and trust boundaries', () => {
         const file = pending.pop()!;
         if (visited.has(file)) continue;
         visited.add(file);
+        // Server actions ('use server' files) are RPC stubs in the client bundle;
+        // do not traverse into their server-side dependency graph.
+        const isServerAction = /^\s*['"]use server['"];/.test(readFileSync(file, 'utf8'));
+        if (isServerAction) continue;
         expect(readFileSync(file, 'utf8'), `Client dependency: ${file}`).not.toMatch(/import ['"]server-only['"]/);
         pending.push(...dependencies(file));
       }
@@ -65,7 +69,7 @@ describe('AI server and trust boundaries', () => {
           evidenceKeys: [evidenceKey(cardiovascularEvidence)],
         }],
       } } });
-      const draft = await service.generate({ topic: 'Cardiac output', studyLocale: 'en', level: 'basic' });
+      const draft = await service.studyPlan.generate({ topic: 'Cardiac output', studyLocale: 'en', level: 'basic' });
       expect(draft.status).toBe('draft');
       expect(draft.medicallyReviewed).toBe(false);
       expect(draft.provenance.providerKind).toBe('fixture');

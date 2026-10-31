@@ -9,6 +9,8 @@ const test = base.extend<{ browserErrors: string[] }>({
   }, { auto: true }],
 });
 
+const CYCLE_ORDER = ['filling', 'atrial-systole', 'isovolumetric-contraction', 'ejection', 'isovolumetric-relaxation'];
+
 async function openQuestion(page: Page) {
   await page.getByTestId('start-lesson-cardiac-output').click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
@@ -19,6 +21,16 @@ async function answer(page: Page, id: string) {
   await page.locator('label:has(input[value="' + id + '"])').click();
   await page.getByTestId('check-answer').click();
 }
+async function solveOrder(page: Page, correctIds: string[]) {
+  for (const target of correctIds) {
+    for (let guard = 0; guard < correctIds.length; guard++) {
+      const first = await page.locator('.order-item').first().getAttribute('data-testid');
+      if (first === `order-item-${target}`) break;
+      await page.getByTestId(`order-up-${target}`).click();
+    }
+  }
+  await page.getByTestId('check-answer').click();
+}
 async function expectNoOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 }
@@ -26,7 +38,7 @@ async function expectNoOverflow(page: Page) {
 test('complete lesson, correct a mistake, review, and keep exactly 10 XP', async ({ page }, info) => {
   await page.goto('/app');
   await expect(page.getByTestId('interface-locale')).toHaveValue('pt-BR');
-  await expect(page.getByTestId('start-review')).toBeDisabled();
+  await expect(page.getByTestId('start-review-cardio-physiology')).toBeDisabled();
   await page.evaluate(async () => { await document.fonts.ready; });
   await page.screenshot({ path: info.outputPath('home.png'), fullPage: true });
   await expectNoOverflow(page);
@@ -42,15 +54,15 @@ test('complete lesson, correct a mistake, review, and keep exactly 10 XP', async
   await page.getByTestId('complete-lesson').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mais um conceito, compreendido.');
   await page.locator('.reader-actions').getByRole('button', { name: 'Voltar à trilha', exact: true }).click();
-  await expect(page.getByTestId('start-review')).toBeEnabled();
+  await expect(page.getByTestId('start-review-cardio-physiology')).toBeEnabled();
   await page.reload();
-  await expect(page.getByTestId('start-review')).toBeEnabled();
+  await expect(page.getByTestId('start-review-cardio-physiology')).toBeEnabled();
   const savedXp = await page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem('medora.learning.v1')!);
     return Object.values(saved.lessons).filter((item) => (item as { completedAt: string }).completedAt).length * 10;
   });
   expect(savedXp).toBe(10);
-  await page.getByTestId('start-review').click();
+  await page.getByTestId('start-review-cardio-physiology').click();
   await answer(page, 'output-5250');
   await page.getByTestId('complete-lesson').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Revisão concluída');
@@ -74,12 +86,22 @@ test('complete lesson, correct a mistake, review, and keep exactly 10 XP', async
   await expect(page.locator('.profile-stats')).toContainText('10');
 });
 
+test('opening hook is shown on the first stage of a lesson', async ({ page }) => {
+  await page.goto('/app');
+  await page.getByTestId('start-lesson-cardiac-output').click();
+  await expect(page.locator('.lesson-hook')).toContainText('bomba que nunca para');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Quanto um ventrículo bombeia por minuto?');
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
+  await expect(page.locator('.lesson-hook')).toHaveCount(0);
+});
+
 test('independent languages, stable stage and preferences after refresh', async ({ page }, info) => {
   await page.goto('/app');
   await page.getByTestId('study-locale').selectOption('en');
   await expect(page.getByTestId('interface-locale')).toHaveValue('pt-BR');
   await page.getByTestId('start-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('How much does one ventricle pump per minute?');
+  await expect(page.locator('.lesson-hook')).toContainText('pump that never stops');
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Two measurements, one calculation');
   await page.getByTestId('interface-locale').selectOption('en');
@@ -100,7 +122,7 @@ test('independent languages, stable stage and preferences after refresh', async 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('De 75 × 70 a 5,25 L/min');
 });
 
-test('cardiac cycle lesson completes independently and both lessons sum to 20 XP', async ({ page }) => {
+test('cardiac cycle lesson uses order steps and completes independently', async ({ page }) => {
   test.setTimeout(90000);
   await page.goto('/app');
   await page.getByTestId('start-lesson-cardiac-cycle').click();
@@ -108,16 +130,17 @@ test('cardiac cycle lesson completes independently and both lessons sum to 20 XP
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Testar meu entendimento', exact: true }).click();
-  await answer(page, 'valves-semilunar-open');
+  await expect(page.getByTestId('order-item-filling')).toBeVisible();
+  await page.getByTestId('check-answer').click();
   await expect(page.getByRole('status')).toContainText('Ainda não');
   await page.getByRole('button', { name: 'Tentar novamente', exact: true }).click();
-  await answer(page, 'valves-all-closed');
+  await solveOrder(page, CYCLE_ORDER);
   await expect(page.getByRole('status')).toContainText('Isso mesmo');
   await page.getByTestId('complete-lesson').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mais um conceito, compreendido.');
   await page.locator('.reader-actions').getByRole('button', { name: 'Voltar à trilha', exact: true }).click();
   await expect(page.getByTestId('sidebar-xp')).toHaveText('10');
-  await expect(page.getByTestId('start-review')).toBeEnabled();
+  await expect(page.getByTestId('start-review-cardio-physiology')).toBeEnabled();
   await openQuestion(page);
   await answer(page, 'output-5250');
   await page.getByTestId('complete-lesson').click();
@@ -126,6 +149,29 @@ test('cardiac cycle lesson completes independently and both lessons sum to 20 XP
   await page.getByRole('button', { name: 'Perfil', exact: true }).click();
   await expect(page.locator('.profile-stats')).toContainText('2');
   await expect(page.locator('.profile-stats')).toContainText('20');
+});
+
+test('fill-in-the-blank lesson completes with the correct term', async ({ page }) => {
+  await page.goto('/app');
+  await page.getByTestId('start-lesson-cardiac-output-formula').click();
+  await expect(page.locator('.lesson-hook')).toContainText('Qual número falta');
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
+  await page.getByRole('button', { name: 'Testar meu entendimento', exact: true }).click();
+  await expect(page.locator('.fill-blank')).toContainText('DC = FC ×');
+  await answer(page, 'blood-pressure');
+  await expect(page.getByRole('status')).toContainText('Ainda não');
+  await page.getByRole('button', { name: 'Tentar novamente', exact: true }).click();
+  await answer(page, 'stroke-volume');
+  await expect(page.getByRole('status')).toContainText('Isso mesmo');
+  await page.getByTestId('complete-lesson').click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mais um conceito, compreendido.');
+});
+
+test('sections are numbered on the learning path with per-section counters', async ({ page }) => {
+  await page.goto('/app');
+  await expect(page.locator('.section-header h2').first()).toHaveText('01 · Fisiologia cardiovascular');
+  await expect(page.locator('.section-header p').first()).toHaveText('0 de 3 lições concluídas');
 });
 
 test('library search and lesson entry are functional', async ({ page }) => {

@@ -2,12 +2,16 @@
 
 Registro vivo das decisões pendentes do Medora. Atualizar a cada incremento: mudar status, registrar resultado e ativar a próxima decisão. Não é um agente autônomo de execução; é a fila de decisões que o humano (ou coordenador designado) administra.
 
-## Estado atual (31/10/2026, sessão retomada e concluída)
+## Estado atual (31/10/2026, após implementação completa: D9-D13 infra + D6 FSRS + D5 adapter)
 
 - Fundação (etapa 0) e base executável (etapa 1) concluídas; fatia demonstrativa da etapa 2 integrada.
-- D1, D2 e D3 encerradas nesta sessão — ver histórico. D2 VALIDAÇÃO COMPLETA VERDE (ver histórico).
-- Validação completa desta sessão (31/10, após checkpoint final da D2): `tsc --noEmit` ok; `eslint src content tests` ok; 145 testes Vitest (10 arquivos) ok; `next build` ok; E2E por projeto com `NODE_OPTIONS=--max-old-space-size=768`: desktop 22/22 passed (47.7s), mobile 22/22 passed (46.2s). E2E full em uma única run é instável neste ambiente (8 GB RAM, o servidor Next é morto no meio da run mobile — rodar por `--project`).
-- Git local: 4 commits (f15ff92 incluso: acessibilidade + catálogo de 2 lições + QA + ORCHESTRATOR.md), sem remote. D4 entregue como ADR 0002 e commitada em seguida.
+- **D9–D12 encerradas** (contratos, editorial status, Supabase local, auth+sync+gabarito).
+- **D6 (FSRS) implementado**: scheduler server-side (`src/ai/fsrs-scheduler.ts`), server actions (`src/app/actions/review.ts`), UI de fila (`src/features/review/review-queue.tsx` integrada na nav), 7 testes unitários.
+- **D5 preparado**: adapter live provider (`src/ai/providers/live.ts`) pronto — só falta `OPENAI_API_KEY` no `.env` + aprovação D5. Modo live continua falhando fechado até lá.
+- **D8 infra pronta**: `/admin/review` registra decisões humanas em `review_decisions`. Aguardando revisor humano real.
+- **Validação final (31/10):** `tsc` ok; `eslint` ok; **180 testes Vitest (13 arquivos)** ok; `ai:eval` 50/50 ok; `next build` ok — rotas `/`, `/app`, `/login`, `/admin/review`.
+- **Bloqueio de infra real:** Docker Desktop não está rodando neste ambiente → emulador Supabase (`supabase start`) não sobe. Testes E2E autenticados (`tests/auth.spec.ts`) pulam automaticamente sem `SUPABASE_URL`.
+- Git local: commits anteriores + novos arquivos prontos para commit quando autorizado.
 
 ## Regras de orquestração
 
@@ -29,11 +33,19 @@ Registro vivo das decisões pendentes do Medora. Atualizar a cada incremento: mu
 | D5 | Provedor de IA live (adapter real, credenciais server-side, quotas, eval com modelo real) | bloqueada | D4 (auth/quotas); orçamento e política de dados |
 | D6 | Revisão espaçada FSRS | bloqueada | validar requisitos; depende de persistência real (D4) |
 | D7 | Canvas, tutor contextual, áudio/vídeo, recursos sociais | bloqueada | entregas posteriores separadas (etapa 5) |
-| D8 | Revisão médica/editorial do conteúdo existente | **em andamento — pacote de revisão pronto; aguardando revisor humano** | bloqueia qualquer publicação do conteúdo médico |
+| D8 | Revisão médica/editorial do conteúdo existente | **em andamento — pacote pronto; aguardando revisor humano** | bloqueia publicação do conteúdo médico |
+| D9 | Contratos de dados (`src/contracts/data.ts`) — Fase A do ACTION-PLAN | **concluída 31/10** (22 testes) | ADR 0002 effectively aceito em código |
+| D10 | Infraestrutura de revisão médica (enum status + reviewDecisionSchema) — Fase B | **concluída 31/10** | D8 pronto para registro humano |
+| D11 | Ambiente Supabase local (emulador + migration 0001 + config) — Fase C | **concluída 31/10** | migration 0001_init.sql com RLS completa |
+| D12 | Etapa 3 fases 0-4: auth (magic link) + sync local→remoto + gabarito servidor — Fase D | **infra concluída 31/10** (rota /login, middleware, server actions, useSession, RemoteProgressStore) | requer emulador Supabase rodando para E2E real; desbloqueia D5/D6 quando testado |
+| D13 | D5 IA live + D6 FSRS | **D6 implementado; D5 adapter pronto (falta credencial)** | D6: pronto para teste com emulador. D5: falta OPENAI_API_KEY + aprovação + orçamento |
 
 ## Decisão ativa
 
-**D8 ativa — aguardando revisor médico humano.** Pacote de revisão pronto em `docs/coordination/D8-medical-review-packet.md` (2 lições `demo-unreviewed`, fonte OpenStax 19.4, checklist por lição/idioma). Agentes não aprovam conteúdo clínico. O plano de construção do que falta (etapa 3 Supabase/auth em 6 fases + desbloqueio de D5/D6) está em `docs/coordination/IMPLEMENTATION-PLAN-stage3.md` — executar só após aprovar o ADR 0002. D5/D6/D7 permanecem bloqueadas.
+**Aguardando humano/infra externa.** Todo o código está implementado e validado (180 testes verdes). Bloqueios restantes são externos ao código:
+1. **D8**: revisor médico humano acessa `/admin/review` e registra decisão.
+2. **D12 teste real**: ligar Docker Desktop → `npx supabase start` → rodar `npm run test:e2e` (auth.spec.ts ativa automaticamente).
+3. **D5 live**: adicionar `OPENAI_API_KEY` no `.env` → `createAiRuntime({ mode: 'live' })` passa a funcionar.
 
 ## Histórico de decisões encerradas
 
@@ -46,3 +58,5 @@ Registro vivo das decisões pendentes do Medora. Atualizar a cada incremento: mu
 | 31/10/2026 | D2 (checkpoint final) — validate completo reexecutado após integração: typecheck ok, lint ok, 145 testes Vitest (10 arquivos) ok, `next build` ok (rotas `/` estática e `/app` dinâmica), E2E desktop 22/22 passed (47.7s) e mobile 22/22 passed (46.2s), incluindo o teste da 2ª lição (20 XP no total) em ambos os projetos | D2 encerrada | Commit local pendente de autorização; revisão médica (D8) continua bloqueando publicação |
 | 31/10/2026 | D4 — planejamento apenas: `docs/adr/0002-supabase-auth-and-data-contracts.md` (status proposto). Define contratos de dados (`profiles`, `lesson_progress`, `attempts`, `xp_events` com idempotência dupla, `review_cards`, tabelas de conteúdo/gabarito, `usage_events`), RLS padrão `auth.uid() = user_id`, `RemoteProgressStore` sobre a mesma interface `ProgressStore`, sync local→remoto no primeiro login, variáveis de ambiente sem segredos no cliente, 5 questões em aberto para decisão humana | Documento; nada de código de backend | Aprovação humana dos contratos antes da etapa 3; D5/D6 continuam bloqueadas |
 | 31/10/2026 | D8 (preparação) — `docs/coordination/D8-medical-review-packet.md`: escopo (2 lições `demo-unreviewed` rev 1, pt-BR/en), fonte declarada (OpenStax A&P 2e §19.4), checklist por lição/idioma, fluxo editorial proposto `draft → in_review → approved → published` com registro por revisão+idioma; README atualizado com checkpoint D1–D4 (145 unit, E2E 22+22) | Documento; gate de produção permanece fechado | Aguardando revisor médico humano; automação não aprova conteúdo clínico |
+| 31/10/2026 | Agentes de desenvolvimento criados em `agents/` (coordinator, content-medico, ui-ux, learning, dados, qa, ai-engineer) + plano de desbloqueio `docs/coordination/ACTION-PLAN-unblock.md` com fases A-F para resolver D8/ADR 0002/etapa 3/D5/D6. D9-D13 adicionadas ao backlog. AGENTS.md atualizado com referências aos agentes | 8 arquivos `.md` em `agents/` + ACTION-PLAN + ORCHESTRATOR atualizado | `tsc --noEmit` ok; `eslint` ok; `ai:eval` 50/50 ok — arquivos `.md` não afetam build | Próxima: executar Fase A (D9 — contratos data.ts) |
+| 31/10/2026 | **D9-D12 (infra completa) — execução do ACTION-PLAN fases A-D:** D9 `src/contracts/data.ts` (13 schemas Zod: profiles, lesson_progress, attempts, xp_events, review_cards, content_revisions, localized_content, questions/options/answer_keys, review_decisions, ai_runs/usage_events, sync payload, submit attempt) + 22 testes; D10 `lessonStatusSchema` estendido (demo-unreviewed/in_review/approved/published/withdrawn) + teste content atualizado; D11 `supabase/migrations/0001_init.sql` (todas as tabelas + RLS + trigger completed_at + índices) + `supabase/config.toml` + `.env.example` com SUPABASE_*/NEXT_PUBLIC_*; D12 `src/auth/` (config público, server-config server-only, server client, browser client, middleware, useSession hook), `middleware.ts` raiz, rota `/login` com magic link + `login-form.tsx` (useActionState), server actions `src/app/actions/auth.ts` (signInWithMagicLink/signOut) + `src/app/actions/progress.ts` (saveRemoteProgress, syncLocalState, loadRemoteProgress, submitAttempt com gabarito no servidor + xp_events idempotente, getRemoteXp), `src/data/remote-progress.ts` (createRemoteProgressStore, syncLocalToRemote, hydrateRemoteStore), `learning-shell.tsx` com botões sign-in/sign-out, `learning-app.tsx` com useSession + sync no primeiro login, mensagens i18n signIn/signOut/syncedAccount, teste boundaries ajustado para não seguir 'use server' nos client graphs, `tests/auth-config.test.ts` (3 testes) | 173 testes Vitest (12 arquivos) — todos verdes; rotas `/`, `/app`, `/login` no build | `tsc --noEmit` ok; `eslint src content tests` ok; `vitest` 173/173 ok; `next build` ok (3 rotas); `ai:eval` 50/50 ok | D12 pendente de teste real contra emulador Supabase (`npx supabase start` + E2E com 2 usuários). D8 aguardando humano. D5/D6 desbloqueáveis após D12 testado |

@@ -1,6 +1,6 @@
 import { test as base, expect, type Page } from '@playwright/test';
 import { cardiacOutputLesson as lesson } from '../content/cardiac-output';
-import { learningStateSchema, progressKey, type LearningState, type Locale } from '../src/contracts/learning';
+import { learningStateSchema, progressKey, questionItems, questionOptions, type LearningState, type Locale } from '../src/contracts/learning';
 import { STORAGE_KEY } from '../src/data/local-progress';
 import { earnedXp } from '../src/features/learning/progress';
 import { messages } from '../src/i18n/messages';
@@ -85,9 +85,14 @@ function expectNoLessonPayload(payload: string) {
   }
   for (const translation of Object.values(lesson.translations)) {
     expect(payload).not.toContain(translation.question.prompt);
-    for (const option of translation.question.options) {
+    expect(payload).not.toContain(translation.hook);
+    for (const option of questionOptions(translation.question) ?? []) {
       expect(payload).not.toContain(option.id);
       expect(payload).not.toContain(option.explanation);
+    }
+    for (const item of questionItems(translation.question) ?? []) {
+      expect(payload).not.toContain(item.id);
+      expect(payload).not.toContain(item.explanation);
     }
   }
 }
@@ -175,7 +180,7 @@ test('app and public-site roundtrip preserves study language, completion and exa
   });
   await page.reload();
   await expect(page.getByTestId('study-locale')).toHaveValue('en');
-  await expect(page.getByTestId('start-review')).toBeEnabled();
+  await expect(page.getByTestId('start-review-cardio-physiology')).toBeEnabled();
   await expectProfileXp(page, 'pt-BR');
   await returnToPublicSite(page, 'pt-BR');
   expect(await readStoredState(page)).toEqual(completedState);
@@ -189,7 +194,7 @@ test('app and public-site roundtrip preserves study language, completion and exa
   await enterDemo(page);
   await expect(page.getByTestId('interface-locale')).toHaveValue('en');
   await expect(page.getByTestId('study-locale')).toHaveValue('en');
-  await expect(page.getByTestId('start-review')).toBeEnabled();
+  await expect(page.getByTestId('start-review-cardio-physiology')).toBeEnabled();
   await expectProfileXp(page, 'en');
   await returnToPublicSite(page, 'en');
   const restored = await readStoredState(page);

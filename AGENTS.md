@@ -21,6 +21,18 @@ Read docs/AI-NATIVE.md and docs/coordination/WORKFLOW.md before AI work. Product
 
 Assign one writer per file. Do not install dependencies, alter shared contracts, run global write-formatters, create branches, commit or revert another agent's work without coordinator/user authorization. Do not inspect the user's authenticated browser for ordinary development or CI.
 
+## Specialized development agents
+
+Detailed agent definitions live in [agents/](agents/). Each agent has exclusive write ownership over its directories and must follow the rules in its own file:
+
+- [agents/coordinator.md](agents/coordinator.md) — src/app, src/contracts, root config, docs/coordination, CI
+- [agents/content-medico.md](agents/content-medico.md) — content/, src/i18n (bilingual lessons as demo-unreviewed drafts)
+- [agents/ui-ux.md](agents/ui-ux.md) — src/ui, src/features/shell, src/features/marketing, globals.css
+- [agents/learning.md](agents/learning.md) — src/features/learning (path, reader, quiz, progress rules)
+- [agents/dados.md](agents/dados.md) — src/data, future src/auth and supabase
+- [agents/qa.md](agents/qa.md) — tests/ (unit, E2E, AI evals, accessibility)
+- [agents/ai-engineer.md](agents/ai-engineer.md) — src/ai (workflows, prompts, providers, evidence)
+
 ## Invariants
 
 - Interface and study language are independent. Canonical lesson/option IDs never depend on locale.

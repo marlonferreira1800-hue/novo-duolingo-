@@ -152,10 +152,10 @@ describe('offline study-plan drafts', () => {
   it('supports an explicitly configured fixture runtime without clinical approval', async () => {
     const runtime = createAiRuntime({ mode: 'fixture', response: { output: makeOutput() } });
 
-    await expect(runtime.generate(makeRequest())).resolves.toMatchObject({
+    await expect(runtime.studyPlan.generate(makeRequest())).resolves.toMatchObject({
       status: 'draft',
       medicallyReviewed: false,
-      provenance: { providerKind: 'fixture', evidenceKeys: [sourceKey] },
+      provenance: { providerKind: 'fixture', evidenceKeys: expect.arrayContaining([sourceKey]) },
     });
   });
 

@@ -8,6 +8,7 @@ export const cardiacOutputLesson = lessonSchema.parse({
   estimatedMinutes: 3,
   xp: 10,
   status: 'demo-unreviewed',
+  sectionId: 'cardio-physiology',
   sources: [
     {
       id: 'openstax-anatomy-physiology-2e-19-4',
@@ -20,6 +21,7 @@ export const cardiacOutputLesson = lessonSchema.parse({
     'pt-BR': {
       courseTitle: 'Sistema cardiovascular',
       sectionTitle: 'Fisiologia cardiovascular',
+      hook: 'E se o coração fosse uma bomba que nunca para — quanto sangue ela consegue enviar em um minuto?',
       title: 'Débito cardíaco: do batimento ao minuto',
       description: 'Relacione frequência cardíaca e volume sistólico para calcular o volume bombeado por minuto.',
       objective: 'Calcular o débito cardíaco de um ventrículo a partir da frequência cardíaca e do volume sistólico, explicitando as unidades.',
@@ -56,6 +58,7 @@ export const cardiacOutputLesson = lessonSchema.parse({
         },
       ],
       question: {
+        type: 'multiple-choice',
         prompt: 'Em um exemplo hipotético, a frequência cardíaca é 75 batimentos/min e o volume sistólico de um ventrículo é 70 mL/batimento. Qual é o débito cardíaco desse ventrículo?',
         options: [
           {
@@ -84,6 +87,7 @@ export const cardiacOutputLesson = lessonSchema.parse({
     en: {
       courseTitle: 'Cardiovascular system',
       sectionTitle: 'Cardiovascular physiology',
+      hook: 'What if the heart were a pump that never stops — how much blood could it send out in one minute?',
       title: 'Cardiac output: from one beat to one minute',
       description: 'Connect heart rate and stroke volume to calculate the volume pumped per minute.',
       objective: 'Calculate cardiac output for one ventricle from heart rate and stroke volume, showing the units.',
@@ -120,6 +124,7 @@ export const cardiacOutputLesson = lessonSchema.parse({
         },
       ],
       question: {
+        type: 'multiple-choice',
         prompt: 'In a hypothetical example, heart rate is 75 beats/min and stroke volume for one ventricle is 70 mL/beat. What is cardiac output for that ventricle?',
         options: [
           {
