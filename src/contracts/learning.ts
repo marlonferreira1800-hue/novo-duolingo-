@@ -9,7 +9,7 @@ const stageSchema = z.object({
   title: z.string().min(1),
   paragraphs: z.array(z.string().min(1)).min(1),
   takeaway: z.string().min(1),
-  diagram: z.enum(['pump', 'equation', 'calculation']),
+  diagram: z.enum(['pump', 'equation', 'calculation', 'phases', 'valves', 'sounds']),
 });
 const optionSchema = z.object({
   id: z.string().min(1),
@@ -29,13 +29,13 @@ export const localizedLessonSchema = z.object({
   }),
 });
 export const lessonSchema = z.object({
-  id: z.literal('cardiac-output'),
-  revision: z.literal(1),
-  questionId: z.literal('cardiac-output-calculation'),
-  correctOptionId: z.literal('output-5250'),
+  id: z.string().min(1),
+  revision: z.number().int().min(1),
+  questionId: z.string().min(1),
+  correctOptionId: z.string().min(1),
   estimatedMinutes: z.number().positive(),
-  xp: z.literal(10),
-  status: z.literal('demo-unreviewed'),
+  xp: z.number().int().positive(),
+  status: z.enum(['demo-unreviewed']),
   sources: z.array(z.object({ id: z.string(), title: z.string(), url: z.url(), section: z.string() })).min(1),
   translations: z.object({ 'pt-BR': localizedLessonSchema, en: localizedLessonSchema }),
 }).superRefine((lesson, ctx) => {
@@ -54,6 +54,18 @@ export const lessonSchema = z.object({
 });
 export type Lesson = z.infer<typeof lessonSchema>;
 export type LocalizedLesson = z.infer<typeof localizedLessonSchema>;
+
+export const lessonCatalogSchema = z.array(lessonSchema).min(1).superRefine((lessons, ctx) => {
+  const ids = lessons.map((lesson) => lesson.id);
+  const questionIds = lessons.map((lesson) => lesson.questionId);
+  if (new Set(ids).size !== ids.length) {
+    ctx.addIssue({ code: 'custom', message: 'Lesson ids must be unique in the catalog.' });
+  }
+  if (new Set(questionIds).size !== questionIds.length) {
+    ctx.addIssue({ code: 'custom', message: 'Question ids must be unique in the catalog.' });
+  }
+});
+export type LessonCatalog = z.infer<typeof lessonCatalogSchema>;
 
 export const lessonProgressSchema = z.object({
   stage: z.number().int().min(0).max(2),

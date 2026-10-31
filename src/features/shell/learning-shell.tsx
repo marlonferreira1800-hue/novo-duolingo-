@@ -28,16 +28,16 @@ export function LearningShell({ children, view, onNavigate, xp, state, onLocales
   return <div className="app-shell">
     <a className="skip-link" href="#main-content">{t('skipToContent')}</a>
     <aside className="sidebar">
-      <button className="brand" onClick={() => onNavigate('home')} aria-label="Medora"><span className="brand-mark"><Leaf size={22}/></span>medora<span className="brand-dot">.</span></button>
-      <nav aria-label={t('journey')} className="desktop-nav">{nav.map(({ id, label, icon: Icon, disabled }) => <button key={id} disabled={disabled} title={disabled ? t('soon') : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => !disabled && onNavigate(id as View)}><Icon size={20}/><span>{label}</span>{disabled && <small>↗</small>}</button>)}</nav>
-      <div className="sidebar-courses"><span>{t('courses')}</span><button className="selected-course" onClick={() => onNavigate('home')}><span className="course-dot"/>{state.studyLocale === 'en' ? 'Cardiovascular system' : 'Sistema cardiovascular'}</button></div>
-      <div className="sidebar-bottom"><div className="xp-strip"><Star size={17}/><strong data-testid="sidebar-xp">{xp}</strong><span>{t('totalXp')}</span></div><div className="prototype-card"><Leaf size={17}/><div><strong>{t('localPrototype')}</strong><small>{t('deviceOnly')}</small></div></div><button className="student-chip" onClick={() => onNavigate('profile')}><span className="avatar"><GraduationCap size={19}/></span>{t('student')}</button></div>
+      <button className="brand" onClick={() => onNavigate('home')} aria-label="Medora"><span className="brand-mark"><Leaf size={22} aria-hidden="true"/></span>medora<span className="brand-dot">.</span></button>
+      <nav aria-label={t('journey')} className="desktop-nav">{nav.map(({ id, label, icon: Icon, disabled }) => <button key={id} disabled={disabled} title={disabled ? t('soon') : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => !disabled && onNavigate(id as View)}><Icon size={20} aria-hidden="true"/><span>{label}</span>{disabled && <small aria-hidden="true">↗</small>}</button>)}</nav>
+      <div className="sidebar-courses"><span>{t('courses')}</span><button className="selected-course" onClick={() => onNavigate('home')}><span className="course-dot" aria-hidden="true"/>{state.studyLocale === 'en' ? 'Cardiovascular system' : 'Sistema cardiovascular'}</button></div>
+      <div className="sidebar-bottom"><div className="xp-strip"><Star size={17} aria-hidden="true"/><strong data-testid="sidebar-xp">{xp}</strong><span>{t('totalXp')}</span></div><div className="prototype-card"><Leaf size={17} aria-hidden="true"/><div><strong>{t('localPrototype')}</strong><small>{t('deviceOnly')}</small></div></div><button className="student-chip" onClick={() => onNavigate('profile')}><span className="avatar"><GraduationCap size={19} aria-hidden="true"/></span>{t('student')}</button></div>
     </aside>
     <main id="main-content" className="content-panel" tabIndex={-1}>
       <header className="app-topbar"><div className="topbar-location"><span className="topbar-section">{t(view)}</span><a className="public-site-link" href="/" data-testid="public-site-link">{t('aboutMedora')}</a></div><LanguageControls state={state} onChange={onLocales}/></header>
       {children}
-      <footer className="panel-footer"><Check size={13}/>{t(persistent ? 'savedLocally' : 'temporarySession')}</footer>
+      <footer className="panel-footer"><Check size={13} aria-hidden="true"/>{t(persistent ? 'savedLocally' : 'temporarySession')}</footer>
     </main>
-    <nav className="mobile-nav" aria-label={t('journey')}>{nav.map(({ id, label, icon: Icon, disabled }) => <button key={id} disabled={disabled} title={disabled ? t('soon') : undefined} aria-label={label} aria-current={view === id ? 'page' : undefined} onClick={() => !disabled && onNavigate(id as View)}><Icon size={21}/><span>{label}</span></button>)}</nav>
+    <nav className="mobile-nav" aria-label={t('journey')}>{nav.map(({ id, label, icon: Icon, disabled }) => <button key={id} disabled={disabled} title={disabled ? t('soon') : undefined} aria-label={label} aria-current={view === id ? 'page' : undefined} onClick={() => !disabled && onNavigate(id as View)}><Icon size={21} aria-hidden="true"/><span>{label}</span></button>)}</nav>
   </div>;
 }

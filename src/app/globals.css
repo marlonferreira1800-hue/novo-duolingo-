@@ -172,6 +172,9 @@ input, select, textarea { font-size: 16px; }
 .formula-result > span { font-size: 10px; color: var(--muted); }
 .formula-result strong { font-size: 27px; font-weight: 500; letter-spacing: -.04em; }
 .formula-result small { font-size: 15px; color: var(--green); }
+.phase-row { flex-wrap: wrap; }
+.phase-node { width: 150px; }
+.phase-node small { font: 9px var(--mono); text-align: center; color: inherit; opacity: .75; }
 .lesson-copy p { font-size: 15px; line-height: 1.9; margin-top: 15px; }
 .takeaway { display: flex; align-items: flex-start; gap: 12px; border: 1px solid #e6dec9; background: #f5f0df; border-radius: 12px; padding: 18px; margin-top: 26px; }
 .takeaway > svg { flex-shrink: 0; color: #947337; }
@@ -299,5 +302,7 @@ input, select, textarea { font-size: 16px; }
   .earned-xp { font-size: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+.reader-body:focus, .content-panel:focus { outline: none; }
+.answer-feedback:focus { outline: none; }

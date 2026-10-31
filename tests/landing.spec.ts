@@ -50,7 +50,7 @@ async function expectLanding(page: Page, locale: Locale) {
   await expect(page.locator('select[data-testid="landing-locale"]')).toHaveValue(locale);
   await expect(page.getByTestId('landing-locale')).toHaveAccessibleName(/\S/);
   await expect(page.locator('html')).toHaveAttribute('lang', locale);
-  for (const id of ['interface-locale', 'study-locale', 'start-lesson', 'check-answer']) {
+  for (const id of ['interface-locale', 'study-locale', 'start-lesson-cardiac-output', 'check-answer']) {
     await expect(page.getByTestId(id)).toHaveCount(0);
   }
   await expect(page.getByRole('radio')).toHaveCount(0);
@@ -64,7 +64,7 @@ async function enterDemo(page: Page) {
   await expect(link).toHaveAttribute('href', '/app');
   await link.click();
   await expect(page).toHaveURL(/\/app$/);
-  await expect(page.getByTestId('start-lesson')).toBeVisible();
+  await expect(page.getByTestId('start-lesson-cardiac-output')).toBeVisible();
   await expect(page.getByTestId('landing-page')).toHaveCount(0);
 }
 
@@ -147,7 +147,7 @@ test.describe('first use with an English browser', () => {
     await expect(page.getByTestId('interface-locale')).toHaveValue('en');
     await expect(page.getByTestId('study-locale')).toHaveValue('en');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await page.getByTestId('start-lesson').click();
+    await page.getByTestId('start-lesson-cardiac-output').click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(lesson.translations.en.stages[0].title);
   });
 });
@@ -161,7 +161,7 @@ test('root to app to lesson uses the new route without changing the study langua
   await expect(page.getByTestId('interface-locale')).toHaveValue('en');
   await expect(page.getByTestId('study-locale')).toHaveValue('pt-BR');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await page.getByTestId('start-lesson').click();
+  await page.getByTestId('start-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(lesson.translations['pt-BR'].stages[0].title);
   await expect(page.getByRole('button', { name: messages.en.next, exact: true })).toBeVisible();
 });
@@ -217,7 +217,7 @@ for (const denyReads of [true, false]) {
     await expect(page.getByRole('status')).toHaveText(messages.en.storageWarning);
     await expect(page.locator('.panel-footer')).toHaveText(messages.en.temporarySession);
     await expect(page.locator('.panel-footer')).not.toContainText(messages.en.savedLocally);
-    await page.getByTestId('start-lesson').click();
+    await page.getByTestId('start-lesson-cardiac-output').click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(lesson.translations['pt-BR'].stages[0].title);
     await page.goto('/');
     // Full navigation/reload must not pretend that an unwritable preference was persisted.
@@ -257,7 +257,7 @@ test('production gate keeps root public in both languages and blocks only app', 
   expect(blocked.ok()).toBe(true);
   const blockedHtml = await blocked.text();
   expect(blockedHtml).toContain('Medical demo disabled');
-  expect(blockedHtml).not.toContain('data-testid="start-lesson"');
+  expect(blockedHtml).not.toContain('data-testid="start-lesson-cardiac-output"');
   expectNoLessonPayload(blockedHtml);
 });
 

@@ -108,16 +108,16 @@ const pt: LandingMessages = {
     ctaEnabled: 'Experimentar a demo',
     ctaDisabled: 'Conhecer o protótipo',
     secondaryCta: 'Como funciona',
-    availableNote: 'Uma lição demonstrativa. Sem criar conta.',
+    availableNote: 'Duas lições demonstrativas. Sem criar conta.',
     unavailableNote: 'Demonstração indisponível neste ambiente',
     chips: ['Aprender', 'Recordar', 'Conectar ideias'],
   },
   demo: {
     eyebrow: 'UM COMEÇO PEQUENO, DE PROPÓSITO',
-    title: 'Débito cardíaco',
-    description: 'Uma lição demonstrativa de fisiologia cardiovascular para conhecer a experiência: leitura em etapas, exercício com feedback e revisão manual.',
-    lessonCount: '1 lição',
-    duration: '≈ 3 min',
+    title: 'Fisiologia cardiovascular',
+    description: 'Duas lições demonstrativas de fisiologia cardiovascular para conhecer a experiência: leitura em etapas, exercício com feedback e revisão manual.',
+    lessonCount: '2 lições',
+    duration: '≈ 6 min',
     languages: 'pt-BR + en',
     sourceLabel: 'Fonte da demonstração',
     sourceTitle: 'OpenStax · Anatomy and Physiology 2e',
@@ -125,7 +125,7 @@ const pt: LandingMessages = {
     notice: 'Conteúdo demonstrativo, sem revisão médica. Não usar em decisões clínicas.',
     cta: 'Abrir a demonstração',
     unavailableTitle: 'Demonstração indisponível neste ambiente',
-    unavailableDescription: 'O acesso à lição está bloqueado aqui. Esta página apresenta apenas a proposta e o escopo do protótipo, sem exibir o conteúdo médico.',
+    unavailableDescription: 'O acesso às lições está bloqueado aqui. Esta página apresenta apenas a proposta e o escopo do protótipo, sem exibir o conteúdo médico.',
     illustrationTitle: 'UM CAMINHO, EM MINIATURA',
     illustrationCaption: 'Ilustração da experiência · não interativa',
     trailLabels: ['Estudar', 'Responder', 'Revisar'],
@@ -133,7 +133,7 @@ const pt: LandingMessages = {
   how: {
     eyebrow: 'COMO FUNCIONA',
     title: 'Um conceito por vez. Tempo para entender.',
-    description: 'Na demonstração, o caminho é simples: uma lição, uma tentativa e uma oportunidade de voltar ao que estudou.',
+    description: 'Na demonstração, o caminho é simples: lições curtas, uma tentativa em cada uma e uma oportunidade de voltar ao que estudou.',
     steps: [
       {
         title: 'Estude um conceito.',
@@ -165,8 +165,8 @@ const pt: LandingMessages = {
     description: 'Medora é um protótipo educacional local. Estes são os limites da experiência atual.',
     items: [
       {
-        title: 'Uma lição, não um catálogo amplo.',
-        description: 'Há uma lição demonstrativa de débito cardíaco. Biblioteca e perfil mostram apenas a experiência local desse recorte.',
+        title: 'Duas lições, não um catálogo amplo.',
+        description: 'Há duas lições demonstrativas de fisiologia cardiovascular (débito cardíaco e ciclo cardíaco). Biblioteca e perfil mostram apenas a experiência local desse recorte.',
       },
       {
         title: 'No navegador, não na nuvem.',
@@ -188,7 +188,7 @@ const pt: LandingMessages = {
     items: [
       {
         question: 'Preciso criar uma conta?',
-        answer: 'Não. Quando a demonstração está habilitada, você pode abrir a lição sem cadastro. Este protótipo não tem login; o perfil é apenas local.',
+        answer: 'Não. Quando a demonstração está habilitada, você pode abrir as lições sem cadastro. Este protótipo não tem login; o perfil é apenas local.',
       },
       {
         question: 'Onde ficam meu progresso e minhas preferências?',
@@ -196,7 +196,7 @@ const pt: LandingMessages = {
       },
       {
         question: 'O conteúdo já passou por revisão médica?',
-        answer: 'Não. A lição é demonstrativa e ainda não foi revisada por um profissional médico. A fonte indicada permite consultar a referência, mas não equivale a aprovação médica. Medora não deve ser usado para decisões clínicas ou orientação a pacientes. A demonstração pode estar bloqueada neste ambiente.',
+        answer: 'Não. As lições são demonstrativas e ainda não foram revisadas por um profissional médico. A fonte indicada permite consultar a referência, mas não equivale a aprovação médica. Medora não deve ser usado para decisões clínicas ou orientação a pacientes. A demonstração pode estar bloqueada neste ambiente.',
       },
       {
         question: 'Há um tutor ou uma IA gerando minhas lições?',
@@ -211,7 +211,7 @@ const pt: LandingMessages = {
   closing: {
     eyebrow: 'UM CONCEITO DE CADA VEZ',
     title: 'Um pouco já é um começo.',
-    description: 'Conheça o recorte atual do Medora, com uma lição curta e espaço para voltar a ela.',
+    description: 'Conheça o recorte atual do Medora, com lições curtas e espaço para voltar a elas.',
   },
   footer: {
     tagline: 'Um pouco de medicina. Todos os dias.',
@@ -242,16 +242,16 @@ const en: LandingMessages = {
     ctaEnabled: 'Try the demo',
     ctaDisabled: 'Meet the prototype',
     secondaryCta: 'How it works',
-    availableNote: 'One demonstration lesson. No account needed.',
+    availableNote: 'Two demonstration lessons. No account needed.',
     unavailableNote: 'Demo unavailable in this environment',
     chips: ['Learn', 'Recall', 'Connect ideas'],
   },
   demo: {
     eyebrow: 'A SMALL START, BY DESIGN',
-    title: 'Cardiac output',
-    description: 'One cardiovascular physiology demonstration lesson to explore the experience: step-by-step reading, an exercise with feedback, and manual review.',
-    lessonCount: '1 lesson',
-    duration: '≈ 3 min',
+    title: 'Cardiovascular physiology',
+    description: 'Two cardiovascular physiology demonstration lessons to explore the experience: step-by-step reading, an exercise with feedback, and manual review.',
+    lessonCount: '2 lessons',
+    duration: '≈ 6 min',
     languages: 'pt-BR + en',
     sourceLabel: 'Demo source',
     sourceTitle: 'OpenStax · Anatomy and Physiology 2e',
@@ -259,7 +259,7 @@ const en: LandingMessages = {
     notice: 'Demonstration content, not medically reviewed. Not for clinical decisions.',
     cta: 'Open the demo',
     unavailableTitle: 'Demo unavailable in this environment',
-    unavailableDescription: 'Access to the lesson is blocked here. This page only describes the prototype and its scope, without displaying medical content.',
+    unavailableDescription: 'Access to the lessons is blocked here. This page only describes the prototype and its scope, without displaying medical content.',
     illustrationTitle: 'A PATH, IN MINIATURE',
     illustrationCaption: 'Illustration of the experience · not interactive',
     trailLabels: ['Study', 'Answer', 'Review'],
@@ -267,7 +267,7 @@ const en: LandingMessages = {
   how: {
     eyebrow: 'HOW IT WORKS',
     title: 'One concept at a time. Room to understand.',
-    description: 'The demo keeps the path simple: one lesson, one attempt, and an opportunity to return to what you studied.',
+    description: 'The demo keeps the path simple: short lessons, one attempt in each, and an opportunity to return to what you studied.',
     steps: [
       {
         title: 'Study one concept.',
@@ -299,8 +299,8 @@ const en: LandingMessages = {
     description: 'Medora is a local educational prototype. These are the limits of the current experience.',
     items: [
       {
-        title: 'One lesson, not a broad catalogue.',
-        description: 'There is one cardiac output demonstration lesson. The library and profile only reflect this small, local experience.',
+        title: 'Two lessons, not a broad catalogue.',
+        description: 'There are two cardiovascular physiology demonstration lessons (cardiac output and the cardiac cycle). The library and profile only reflect this small, local experience.',
       },
       {
         title: 'In your browser, not the cloud.',
@@ -322,7 +322,7 @@ const en: LandingMessages = {
     items: [
       {
         question: 'Do I need to create an account?',
-        answer: 'No. When the demo is enabled, you can open the lesson without signing up. This prototype has no login; the profile is local only.',
+        answer: 'No. When the demo is enabled, you can open the lessons without signing up. This prototype has no login; the profile is local only.',
       },
       {
         question: 'Where are my progress and preferences stored?',
@@ -330,7 +330,7 @@ const en: LandingMessages = {
       },
       {
         question: 'Has the content been medically reviewed?',
-        answer: 'No. The lesson is demonstration content and has not been reviewed by a medical professional. The listed source lets you inspect the reference, but it is not medical approval. Medora must not be used for clinical decisions or patient guidance. The demo may be blocked in this environment.',
+        answer: 'No. The lessons are demonstration content and have not been reviewed by a medical professional. The listed source lets you inspect the reference, but it is not medical approval. Medora must not be used for clinical decisions or patient guidance. The demo may be blocked in this environment.',
       },
       {
         question: 'Is a tutor or AI generating my lessons?',
@@ -345,7 +345,7 @@ const en: LandingMessages = {
   closing: {
     eyebrow: 'ONE CONCEPT AT A TIME',
     title: 'A little is a beginning.',
-    description: 'Explore Medora’s current scope, with a short lesson and room to come back to it.',
+    description: 'Explore Medora’s current scope, with short lessons and room to come back to them.',
   },
   footer: {
     tagline: 'A little medicine. Every day.',

@@ -10,7 +10,7 @@ const test = base.extend<{ browserErrors: string[] }>({
 });
 
 async function openQuestion(page: Page) {
-  await page.getByTestId('start-lesson').click();
+  await page.getByTestId('start-lesson-cardiac-output').click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Testar meu entendimento', exact: true }).click();
@@ -61,7 +61,7 @@ test('complete lesson, correct a mistake, review, and keep exactly 10 XP', async
   await page.getByRole('button', { name: 'Início', exact: true }).click();
   await page.getByTestId('interface-locale').selectOption('en');
   await page.getByTestId('study-locale').selectOption('en');
-  await page.getByTestId('start-lesson').click();
+  await page.getByTestId('start-lesson-cardiac-output').click();
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   await page.getByRole('button', { name: 'Check my understanding', exact: true }).click();
@@ -78,7 +78,7 @@ test('independent languages, stable stage and preferences after refresh', async 
   await page.goto('/app');
   await page.getByTestId('study-locale').selectOption('en');
   await expect(page.getByTestId('interface-locale')).toHaveValue('pt-BR');
-  await page.getByTestId('start-lesson').click();
+  await page.getByTestId('start-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('How much does one ventricle pump per minute?');
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Two measurements, one calculation');
@@ -91,7 +91,7 @@ test('independent languages, stable stage and preferences after refresh', async 
   await page.reload();
   await expect(page.getByTestId('interface-locale')).toHaveValue('en');
   await expect(page.getByTestId('study-locale')).toHaveValue('en');
-  await page.getByTestId('start-lesson').click();
+  await page.getByTestId('start-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Two measurements, one calculation');
   await page.getByTestId('study-locale').selectOption('pt-BR');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Duas medidas, um cálculo');
@@ -100,13 +100,41 @@ test('independent languages, stable stage and preferences after refresh', async 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('De 75 × 70 a 5,25 L/min');
 });
 
+test('cardiac cycle lesson completes independently and both lessons sum to 20 XP', async ({ page }) => {
+  test.setTimeout(90000);
+  await page.goto('/app');
+  await page.getByTestId('start-lesson-cardiac-cycle').click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Um ciclo, três momentos');
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
+  await page.getByRole('button', { name: 'Testar meu entendimento', exact: true }).click();
+  await answer(page, 'valves-semilunar-open');
+  await expect(page.getByRole('status')).toContainText('Ainda não');
+  await page.getByRole('button', { name: 'Tentar novamente', exact: true }).click();
+  await answer(page, 'valves-all-closed');
+  await expect(page.getByRole('status')).toContainText('Isso mesmo');
+  await page.getByTestId('complete-lesson').click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mais um conceito, compreendido.');
+  await page.locator('.reader-actions').getByRole('button', { name: 'Voltar à trilha', exact: true }).click();
+  await expect(page.getByTestId('sidebar-xp')).toHaveText('10');
+  await expect(page.getByTestId('start-review')).toBeEnabled();
+  await openQuestion(page);
+  await answer(page, 'output-5250');
+  await page.getByTestId('complete-lesson').click();
+  await page.locator('.reader-actions').getByRole('button', { name: 'Voltar à trilha', exact: true }).click();
+  await expect(page.getByTestId('sidebar-xp')).toHaveText('20');
+  await page.getByRole('button', { name: 'Perfil', exact: true }).click();
+  await expect(page.locator('.profile-stats')).toContainText('2');
+  await expect(page.locator('.profile-stats')).toContainText('20');
+});
+
 test('library search and lesson entry are functional', async ({ page }) => {
   await page.goto('/app');
   await page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
   await page.getByRole('textbox', { name: 'Buscar cursos', exact: true }).fill('neurologia');
   await expect(page.getByRole('status')).toHaveText('Nenhum curso corresponde à busca.');
   await page.getByRole('textbox', { name: 'Buscar cursos', exact: true }).fill('cardiaco');
-  await page.locator('.library-course').click();
+  await page.getByTestId('library-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Quanto um ventrículo bombeia por minuto?');
 });
 
@@ -128,13 +156,13 @@ test('production demo requires explicit opt-in', async ({ request }) => {
   expect(response.ok()).toBe(true);
   const html = await response.text();
   expect(html).toContain('Medical demo disabled');
-  expect(html).not.toContain('data-testid="start-lesson"');
+  expect(html).not.toContain('data-testid="start-lesson-cardiac-output"');
 });
 
 test('invalid stored data recovers with a visible notice', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('medora.learning.v1', JSON.stringify({ version: 99 })));
   await page.goto('/app');
   await expect(page.getByRole('status')).toContainText('registro salvo incompatível');
-  await page.getByTestId('start-lesson').click();
+  await page.getByTestId('start-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Quanto um ventrículo bombeia por minuto?');
 });
