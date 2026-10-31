@@ -33,7 +33,7 @@ Registro vivo das decisões pendentes do Medora. Atualizar a cada incremento: mu
 
 ## Decisão ativa
 
-**D8 ativa — aguardando revisor médico humano.** Pacote de revisão pronto em `docs/coordination/D8-medical-review-packet.md` (2 lições `demo-unreviewed`, fonte OpenStax 19.4, checklist por lição/idioma). Agentes não aprovam conteúdo clínico. Paralelamente, o humano pode aprovar os contratos do ADR 0002 para destravar a etapa 3 (implementação real de Supabase/auth). D5/D6/D7 permanecem bloqueadas.
+**D8 ativa — aguardando revisor médico humano.** Pacote de revisão pronto em `docs/coordination/D8-medical-review-packet.md` (2 lições `demo-unreviewed`, fonte OpenStax 19.4, checklist por lição/idioma). Agentes não aprovam conteúdo clínico. O plano de construção do que falta (etapa 3 Supabase/auth em 6 fases + desbloqueio de D5/D6) está em `docs/coordination/IMPLEMENTATION-PLAN-stage3.md` — executar só após aprovar o ADR 0002. D5/D6/D7 permanecem bloqueadas.
 
 ## Histórico de decisões encerradas
 
