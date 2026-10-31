@@ -2,7 +2,7 @@
 
 ## Status e requisitos
 
-A fundação e a primeira fatia vertical demonstrativa estão implementadas: Next.js/TypeScript, lição de débito cardíaco, progresso local, biblioteca/perfil locais e pt-BR/en independentes. O restante deste documento descreve a arquitetura de evolução; Supabase, autenticação, IA, FSRS, Canvas e publicação médica não estão implementados. Conteúdo e testes unitários foram delegados em escopos disjuntos; fundação, contratos, UI e integração ficaram com o coordenador.
+A fundação e a primeira fatia vertical demonstrativa estão implementadas: Next.js/TypeScript, lição de débito cardíaco, progresso local, biblioteca/perfil locais e pt-BR/en independentes. A fundação AI-native server-only também está implementada com workflow de rascunho, provider port, prompts/evidências versionados, limites, metadados e evals offline. O restante deste documento descreve a arquitetura de evolução; Supabase, autenticação, provedor de IA live, FSRS, Canvas e publicação médica não estão implementados. Conteúdo e testes unitários foram delegados em escopos disjuntos; fundação, contratos, UI e integração ficaram com o coordenador.
 
 Checkpoint executado com sucesso: typecheck, lint, 84 testes unitários, build e 12 testes E2E. E2E cobre Chrome desktop e emulação mobile, sem validação em aparelho físico. Há gate padrão de produção para conteúdo demonstrativo sem revisão médica. Ver [README.md](README.md) para executar e conhecer os limites.
 
@@ -12,6 +12,12 @@ Referências:
 - [Plano e referências públicas](research/wondering/PLANO.md)
 
 Objetivo: experiência semelhante ao Wondering para estudantes de medicina, com identidade própria, pt-BR/en, trilhas, microlições, questões, tutor e revisão. Preservar composição visual e interações observadas. Comportamentos ainda não verificados serão identificados como decisões próprias.
+
+## Fundação AI-native e versionamento
+
+A arquitetura AI-native é detalhada em [docs/AI-NATIVE.md](docs/AI-NATIVE.md); a decisão está em [ADR 0001](docs/adr/0001-ai-runtime.md). O workflow implementado recebe evidências selecionadas no servidor e retorna somente rascunhos, sem escrever no catálogo, progresso ou XP. A aplicação demonstrativa continua independente desse workflow até existirem autorização e infraestrutura apropriadas. Não há RAG automatizado nem chamadas a um modelo real.
+
+O repositório Git local está inicializado no diretório do projeto. O protótipo inicial foi registrado no commit 30e1805. O incremento AI-native passou no checkpoint local: typecheck, lint, 134 testes unitários (50 de IA), build e 12 E2E, antes de seu commit. Fontes/lockfile/regras/CI são versionados; segredos, dependências, builds e materiais da sessão autenticada ficam fora do Git. CI foi definida, mas não executada em serviço remoto. Nenhum remote/push foi configurado.
 
 ## 1. Decisões de arquitetura
 
@@ -29,7 +35,7 @@ Uma aplicação Next.js/TypeScript, organizada por domínio, com PostgreSQL/Supa
 | Arquivos | Storage somente quando necessário, com política de acesso |
 | Testes | Vitest + Playwright; testes de integração do banco na etapa correspondente |
 | Dependências | Um gerenciador, inicialmente npm, um lockfile; versões fixadas no bootstrap após verificar Node/compatibilidade |
-| IA | Provedor acessado somente no servidor, abstração pequena, cotas e métricas |
+| IA | Provider port server-only e workflow de rascunho implementados; fixture explícita; cotas distribuídas e provider live futuros |
 | Tarefas demoradas | Jobs persistidos e worker somente na fase de geração; não dentro de requisição longa do navegador |
 
 Não adicionar Redis, Kubernetes, banco vetorial ou event bus sem necessidade medida. Busca inicial pode usar PostgreSQL; separar serviço somente quando requisitos de escala, runtime ou responsabilidade justificarem.
