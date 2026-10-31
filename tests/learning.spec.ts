@@ -24,7 +24,7 @@ async function expectNoOverflow(page: Page) {
 }
 
 test('complete lesson, correct a mistake, review, and keep exactly 10 XP', async ({ page }, info) => {
-  await page.goto('/');
+  await page.goto('/app');
   await expect(page.getByTestId('interface-locale')).toHaveValue('pt-BR');
   await expect(page.getByTestId('start-review')).toBeDisabled();
   await page.evaluate(async () => { await document.fonts.ready; });
@@ -75,7 +75,7 @@ test('complete lesson, correct a mistake, review, and keep exactly 10 XP', async
 });
 
 test('independent languages, stable stage and preferences after refresh', async ({ page }, info) => {
-  await page.goto('/');
+  await page.goto('/app');
   await page.getByTestId('study-locale').selectOption('en');
   await expect(page.getByTestId('interface-locale')).toHaveValue('pt-BR');
   await page.getByTestId('start-lesson').click();
@@ -101,7 +101,7 @@ test('independent languages, stable stage and preferences after refresh', async 
 });
 
 test('library search and lesson entry are functional', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/app');
   await page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
   await page.getByRole('textbox', { name: 'Buscar cursos', exact: true }).fill('neurologia');
   await expect(page.getByRole('status')).toHaveText('Nenhum curso corresponde à busca.');
@@ -115,7 +115,7 @@ test('unavailable storage is explicit and does not break the lesson', async ({ p
     Storage.prototype.getItem = () => { throw new Error('Storage unavailable'); };
     Storage.prototype.setItem = () => { throw new Error('Storage unavailable'); };
   });
-  await page.goto('/');
+  await page.goto('/app');
   await expect(page.getByRole('status')).toContainText('armazenamento do navegador está indisponível');
   await openQuestion(page);
   await answer(page, 'output-5250');
@@ -124,7 +124,7 @@ test('unavailable storage is explicit and does not break the lesson', async ({ p
 });
 
 test('production demo requires explicit opt-in', async ({ request }) => {
-  const response = await request.get('http://127.0.0.1:3101/');
+  const response = await request.get('http://127.0.0.1:3101/app');
   expect(response.ok()).toBe(true);
   const html = await response.text();
   expect(html).toContain('Medical demo disabled');
@@ -133,7 +133,7 @@ test('production demo requires explicit opt-in', async ({ request }) => {
 
 test('invalid stored data recovers with a visible notice', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('medora.learning.v1', JSON.stringify({ version: 99 })));
-  await page.goto('/');
+  await page.goto('/app');
   await expect(page.getByRole('status')).toContainText('registro salvo incompatível');
   await page.getByTestId('start-lesson').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Quanto um ventrículo bombeia por minuto?');

@@ -34,7 +34,7 @@ export function LearningShell({ children, view, onNavigate, xp, state, onLocales
       <div className="sidebar-bottom"><div className="xp-strip"><Star size={17}/><strong data-testid="sidebar-xp">{xp}</strong><span>{t('totalXp')}</span></div><div className="prototype-card"><Leaf size={17}/><div><strong>{t('localPrototype')}</strong><small>{t('deviceOnly')}</small></div></div><button className="student-chip" onClick={() => onNavigate('profile')}><span className="avatar"><GraduationCap size={19}/></span>{t('student')}</button></div>
     </aside>
     <main id="main-content" className="content-panel" tabIndex={-1}>
-      <header className="app-topbar"><span className="topbar-section">{t(view)}</span><LanguageControls state={state} onChange={onLocales}/></header>
+      <header className="app-topbar"><div className="topbar-location"><span className="topbar-section">{t(view)}</span><a className="public-site-link" href="/" data-testid="public-site-link">{t('aboutMedora')}</a></div><LanguageControls state={state} onChange={onLocales}/></header>
       {children}
       <footer className="panel-footer"><Check size={13}/>{t(persistent ? 'savedLocally' : 'temporarySession')}</footer>
     </main>

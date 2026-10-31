@@ -1,11 +1,14 @@
-import { LearningApp } from '@/features/learning/learning-app';
+import type { Metadata } from 'next';
+import { LandingPage } from '@/features/marketing/landing-page';
 import { canShowMedicalDemo } from '@/content/demo-policy';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata: Metadata = {
+  title: 'Medora — um pouco de medicina, todos os dias',
+  description: 'Conheça o Medora: um protótipo educacional para estudantes de medicina em português e inglês. A bilingual medical learning prototype.',
+};
+
 export default function Page() {
-  if (!canShowMedicalDemo(process.env.NODE_ENV, process.env.ENABLE_MEDICAL_DEMO)) {
-    return <main className="demo-gate"><h1>Medora</h1><h2>Medical demo disabled · Demonstração médica desativada</h2><p>This prototype contains content that has not been medically reviewed. Production access requires an explicit demo opt-in.</p><p lang="pt-BR">Este protótipo contém material sem revisão médica. O acesso em produção exige habilitação explícita da demonstração.</p></main>;
-  }
-  return <LearningApp/>;
+  return <LandingPage demoEnabled={canShowMedicalDemo(process.env.NODE_ENV, process.env.ENABLE_MEDICAL_DEMO)}/>;
 }

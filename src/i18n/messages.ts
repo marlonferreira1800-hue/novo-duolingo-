@@ -40,7 +40,7 @@ const en = {
   focus: 'Today’s focus', objective: 'Learning objective', foundations: 'Basic sciences',
   sourcesTitle: 'A source you can inspect', originalDiagram: 'Original schematic · not to scale',
   reviewMode: 'RECALL PRACTICE', close: 'Close', courseDescription: 'Understand the heart, one concept at a time.',
-  skipToContent: 'Skip to content', loading: 'Preparing your learning space…',
+  skipToContent: 'Skip to content', loading: 'Preparing your learning space…', aboutMedora: 'About Medora',
 };
 const pt: typeof en = {
   home: 'Início', create: 'Criar', canvas: 'Canvas', library: 'Biblioteca', profile: 'Perfil',
@@ -82,6 +82,6 @@ const pt: typeof en = {
   focus: 'Foco de hoje', objective: 'Objetivo de aprendizado', foundations: 'Ciclo básico',
   sourcesTitle: 'Uma fonte que você pode consultar', originalDiagram: 'Esquema original · fora de escala',
   reviewMode: 'PRÁTICA DE RECUPERAÇÃO', close: 'Fechar', courseDescription: 'Entenda o coração, um conceito de cada vez.',
-  skipToContent: 'Pular para o conteúdo', loading: 'Preparando seu espaço de estudo…',
+  skipToContent: 'Pular para o conteúdo', loading: 'Preparando seu espaço de estudo…', aboutMedora: 'Sobre o Medora',
 };
 export const messages: Record<Locale, typeof en> = { en, 'pt-BR': pt };

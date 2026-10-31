@@ -2,9 +2,9 @@
 
 ## Status e requisitos
 
-A fundação e a primeira fatia vertical demonstrativa estão implementadas: Next.js/TypeScript, lição de débito cardíaco, progresso local, biblioteca/perfil locais e pt-BR/en independentes. A fundação AI-native server-only também está implementada com workflow de rascunho, provider port, prompts/evidências versionados, limites, metadados e evals offline. O restante deste documento descreve a arquitetura de evolução; Supabase, autenticação, provedor de IA live, FSRS, Canvas e publicação médica não estão implementados. Conteúdo e testes unitários foram delegados em escopos disjuntos; fundação, contratos, UI e integração ficaram com o coordenador.
+A fundação e a primeira fatia vertical demonstrativa estão implementadas: Next.js/TypeScript, landing pública bilíngue em `/`, área de estudo em `/app`, lição de débito cardíaco, progresso local, biblioteca/perfil locais e pt-BR/en independentes. A fundação AI-native server-only também está implementada com workflow de rascunho, provider port, prompts/evidências versionados, limites, metadados e evals offline. O restante deste documento descreve a arquitetura de evolução; Supabase, autenticação, provedor de IA live, FSRS, Canvas e publicação médica não estão implementados. Conteúdo e testes unitários foram delegados em escopos disjuntos; fundação, contratos, UI e integração ficaram com o coordenador.
 
-Checkpoint executado com sucesso: typecheck, lint, 84 testes unitários, build e 12 testes E2E. E2E cobre Chrome desktop e emulação mobile, sem validação em aparelho físico. Há gate padrão de produção para conteúdo demonstrativo sem revisão médica. Ver [README.md](README.md) para executar e conhecer os limites.
+Checkpoint atual executado com sucesso: typecheck, lint, 137 testes unitários, build e 32 testes E2E. Inclui a landing pública, a migração da área de estudo para `/app`, navegação entre as duas superfícies, preservação de idiomas/progresso e gate médico. E2E cobre Chrome desktop e emulação mobile, sem validação em aparelho físico. Há gate padrão de produção para conteúdo demonstrativo sem revisão médica. Ver [README.md](README.md) para executar e conhecer os limites.
 
 Referências:
 - [Produto medicina e idiomas](research/wondering/MEDICINA.md)
@@ -42,6 +42,7 @@ Não adicionar Redis, Kubernetes, banco vetorial ou event bus sem necessidade me
 
 ### Fronteiras
 
+- `marketing`: apresentação pública e FAQ em `/`, sem importar as fixtures médicas, questões ou gabaritos. O gate continua no servidor em `/app`; com ele fechado, a landing apresenta o escopo sem oferecer acesso indisponível. A preferência de interface é compartilhada pelo ProgressStore sem alterar idioma de estudo, conclusão ou XP.
 - `learning`: trilhas, leitor, exercícios e requisitos de desbloqueio.
 - `progress`: conclusão, XP, streaks e fila de revisão.
 - `content`: conteúdo canônico, traduções, fontes e revisão editorial/médica.
@@ -133,7 +134,7 @@ A estrutura básica abaixo já foi criada; caminhos de backend e serviços futur
 | Papel | Escrita exclusiva | Entrega |
 | --- | --- | --- |
 | Coordenador/integrador | `src/app/**`, `src/contracts/**`, configurações raiz, manifests/lockfile, CI, `docs/coordination/**` | Fundação, contratos, composição das rotas e aceite integrado |
-| UI e fidelidade | `src/ui/**`, `src/features/shell/**`, `src/features/discovery/**`, `public/brand/**` | Tokens, shell, Home estrutural, Library/Create e comportamento responsivo |
+| UI e fidelidade | `src/ui/**`, `src/features/shell/**`, `src/features/marketing/**`, `src/features/discovery/**`, `public/brand/**` | Tokens, shell, Home estrutural, Library/Create e comportamento responsivo |
 | Aprendizagem | `src/features/learning/**` | Trilha, leitor, exercícios, regras de progressão e serviços de progresso |
 | Conteúdo e idiomas | `content/**`, `src/i18n/**`, `public/lesson-diagrams/**` | Fixtures bilíngues, mensagens, glossário e conteúdo versionado; sem autoaprovação médica |
 | Dados e identidade | `src/data/**`, `src/auth/**`, `supabase/**` | Adaptadores local/remoto, autenticação, migrations e RLS |

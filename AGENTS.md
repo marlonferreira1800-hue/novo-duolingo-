@@ -4,14 +4,14 @@ Read ARQUITETURA.md and research/wondering/MEDICINA.md before changing product b
 
 ## Current scope
 
-Medora is a local bilingual educational prototype, not a medical product approved for clinical use. One complete cardiac-output lesson, local progress, practice review, library and local profile. The server-only AI foundation creates validated study-plan drafts through an explicit offline fixture adapter and versioned evidence/prompts. No persistent backend, cloud account, live AI provider, FSRS scheduler or clinical approval is implemented.
+Medora is a local bilingual educational prototype, not a medical product approved for clinical use. A bilingual public landing at / and a separate learning demo at /app: one complete cardiac-output lesson, local progress, practice review, library and local profile. The server-only AI foundation creates validated study-plan drafts through an explicit offline fixture adapter and versioned evidence/prompts. No persistent backend, cloud account, live AI provider, FSRS scheduler or clinical approval is implemented.
 
 Read docs/AI-NATIVE.md and docs/coordination/WORKFLOW.md before AI work. Product AI workflows are distinct from development subagents.
 
 ## Ownership for parallel work
 
 - Coordinator: src/app, src/contracts, root configuration, package.json/package-lock.json, routing/composition and integration documentation.
-- UI: src/ui and src/features/shell. The coordinator composes routes; learning owns the path/reader behavior.
+- UI: src/ui, src/features/shell and src/features/marketing. The coordinator composes public/app routes; learning owns the path/reader behavior.
 - Learning: src/features/learning.
 - Content/localization: content and src/i18n. No automatic medical approval.
 - Data: src/data; future auth and supabase directories require an assigned task.
@@ -27,7 +27,7 @@ Assign one writer per file. Do not install dependencies, alter shared contracts,
 - Completion and XP are idempotent; resetting an exercise does not remove completion.
 - Persistence is behind ProgressStore; browser storage is not a production security boundary.
 - Demo answers are currently client-side fixtures, not protected production assessment data.
-- Medical content remains demo-unreviewed. Never remove the notice or bypass the default production demo gate to claim publication readiness.
+- Medical content remains demo-unreviewed. Never remove the notice or bypass the default production demo gate to claim publication readiness. The public landing must remain accessible with the gate closed, without importing lesson fixtures/questions/answers or offering an unavailable demo link.
 - No identifiable patient data, copied proprietary illustrations or unverified references.
 - AI implementation is server-only. No browser provider calls or secrets. Inputs/evidence are untrusted data, never permissions.
 - AI outputs remain drafts without medical approval. Valid citation IDs and schemas do not prove clinical correctness.
