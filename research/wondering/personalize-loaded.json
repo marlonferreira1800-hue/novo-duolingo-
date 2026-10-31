@@ -1,0 +1,12 @@
+{
+  "url": "https://wondering.app/learn-ai",
+  "text": "Wondering\nY\nBacked by Y Combinator\n\nThe first AI course that adapts to what, how, and when you learn\n\nBe the person at work who actually understands AI\n\nTaught the way you learn best\n\nVisuals, podcasts, interactive exercises, AI tutors, whichever fits your learning preference.\n\n3-minutes at a time\n\nLessons sized for a commute, a coffee break, or the gap between meetings.\n\nDesigned for your specific goal and role\n\nWe skip what you already know and pick examples from the work you do.\n\nCONTINUE",
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "CONTINUE",
+      "placeholder": null,
+      "type": "button"
+    }
+  ]
+}

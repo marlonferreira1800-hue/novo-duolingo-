@@ -1,0 +1,25 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.env*
+!.env.example
+__pycache__/
+*.pyc
+
+# Personal browser-session research remains local and is never versioned.
+research/wondering/authenticated/
+research/wondering/open_login.py
+research/wondering/capture_authenticated.py
+
+# Local secrets, traces and machine-specific outputs.
+*.log
+*.pem
+*.key
+.ai-runs/
+.cache/
+.DS_Store
+Thumbs.db

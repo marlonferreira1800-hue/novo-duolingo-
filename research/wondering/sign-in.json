@@ -1,0 +1,360 @@
+{
+  "url": "https://wondering.app/",
+  "text": "Wondering\nHome\nExplore\nDocs\nPersonalize your free AI Foundations Course\nSIGN IN\nY\nBacked by Y Combinator\nDuolingo for Learning Anything\nSTART LEARNING\nGET THE IOS APP\nJM\nAK\nRS\nLT\n\nJoin 17,126 users on Wondering\n\nTrusted by learners from\n\nWhat do you want to learn?\n\nTeach me quantum physics\nHow AI works from theory to application\nBecome a better parent\nHow to read Tarot cards\nUnderstand postmodern furniture design\nHow to apply Stoic Philosophy\nMaster Psychology in Product Design\nHistory of the Roman Empire\nOr type your own topic...\nTurn any topic into structured course with 3-min chunks to fit your busy schedule\nBite-Sized Lessons\n\nModern Conscious Parenting\n\nResearch shows that a parent's ability to manage their own emotions is one of the strongest predictors of their child's future success.\n\nTraditional vs. Positive Discipline\nTraditional\nFocuses on stopping the behavior\nUses fear or shame as a motivator\nParent is the 'Boss'\nPositive\nFocuses on teaching the skill\nUses connection as a motivator\nParent is the 'Guide'\nUnderstanding Age-Appropriate Expectations\nUnderstanding Age-Appropriate Expectations\nAge Group\tKey Milestone\tCommon Struggle\nToddler (1-3)\tIndependence seeking\tImpulse control\nPreschool (3-5)\tSocial play\tBig emotional shifts\nSchool Age (6-11)\tCompetence/Skills\tFear of failure\nAdolescent (12+)\tIdentity formation\tPrivacy vs. Connection\nVisuals and Diagrams\nRegular Practice\nMultiple Choice\nClick & Fill\nOrder Steps\n\nWhen a child is 'flipping their lid,' which part of the brain is temporarily offline?\n\nThe Brainstem\nThe Prefrontal Cortex\nThe Amygdala\nThe Occipital Lobe\nPersonalized for You\n\nTell Wondering how you learn best\n\nExplain using Pixar movie references\nI prefer learning through analogies\nAlways add a TLDR before every lesson\nRelate to being a busy single parent working two jobs\nConnect this to my background in project management and leadership\nExplain so me and my five year old both understand\nGive me scripts for when I'm about to lose my cool\nGuided Learning Path\n\nMaster self-regulation and emotional awareness\n\nBuild a secure attachment through connection\n\nImplement positive discipline and boundaries\n\nRefine with feedback\n\nMaster and retain\n\nTools that help you go\nd\ne\ne\np\ne\nr\nYour Learning, Your Way\n\nCustomize your path based on your goals and schedule. We adapt to how you want to learn.\n\nWhat's your goal?\n\nUnderstand the basics\nGo deep\nApply practically\n\nHow much time can you commit?\n\nCasual5 min/day\nRegular15 min/day\nIntensive30+ min/day\n\nWhat do you want to focus on? (select any)\n\nSelf-Regulation\nPositive Discipline\nBrain Development\nActive Listening\n\nYOUR PERSONALIZED PATH\n\nStart\nGoal\n\n~3 weeks at your pace\n\nSelect focus areas to customize your path\n\nReady to learn?\nSTART LEARNING\nGet the iOS App\nWondering\n\nLearn what you thought you couldn't.\n\n© 2026 Wondering\n\nLearn\nHome\nExplore\nAI Course\nCanvas\nWondering\nCompare\nBlog\nContact\nEmail us\nLegal\nPrivacy Policy\nTerms of Service\nYour Privacy Choices\nDownload on the App Store\nGet Started with Google\nContinue with email\nI Already Have An Account",
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "SIGN IN",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "START LEARNING",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "GET THE IOS APP",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Teach me quantum physics",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "How AI works from theory to application",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Become a better parent",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "How to read Tarot cards",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Understand postmodern furniture design",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "How to apply Stoic Philosophy",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Master Psychology in Product Design",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "History of the Roman Empire",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Or type your own topic...",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Traditional",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Positive",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Traditional\nFocuses on stopping the behavior\nUses fear or shame as a motivator\nParent is the 'Boss'",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Positive\nFocuses on teaching the skill\nUses connection as a motivator\nParent is the 'Guide'",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Multiple Choice",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Click & Fill",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Order Steps",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "The Brainstem",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "The Prefrontal Cortex",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "The Amygdala",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "The Occipital Lobe",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Understand the basics",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Go deep",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Apply practically",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Casual5 min/day",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Regular15 min/day",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Intensive30+ min/day",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Self-Regulation",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Positive Discipline",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Brain Development",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Active Listening",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "START LEARNING",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Get the iOS App",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Your Privacy Choices",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Download on the App Store",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Get Started with Google",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Continue with email",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "I Already Have An Account",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Start learning",
+      "placeholder": null,
+      "type": "button"
+    }
+  ]
+}

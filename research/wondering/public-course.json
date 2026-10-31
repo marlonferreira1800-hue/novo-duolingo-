@@ -1,0 +1,495 @@
+{
+  "url": "https://wondering.app/learn/attention-is-all-you-need-zp2vvu",
+  "title": "Attention Is All You Need - Wondering",
+  "text": "Wondering\nHome\nExplore\nDocs\nSIGN IN\nAttention Is All You Need\n\nPaper by Ashish Vaswani et al.\n\nVaswani and colleagues introduce the Transformer, an encoder-decoder architecture built around attention rather than recurrence or convolution, and report its parallel training advantages, translation results, and transfer to constituency parsing.\n\n7 sections\n21 lessons\n~63 min\nVIEW PATH\nLEARNING MAP\nPERSONALIZE\n2 SOURCES\nWhat you will achieve\nUnderstand the Transformer architecture, its attention mechanisms, training design, and the results reported in the original paper.\nLearning Path\nAttention Is All You Need\n1. Motivation\n\n1/2 lessons\n\nRNN Limitations\n\nAttention-Only Model\n\n2. Core Architecture\n\n3/3 lessons\n\nEncoder-Decoder Stack\n\nEncoder Layers\n\nDecoder Masking\n\n3. Attention Mechanisms\n\n4/4 lessons\n\nAttention Basics\n\nDot-Product Attention\n\nMulti-Head Attention\n\nAttention Types\n\n4. Supporting Components\n\n3/3 lessons\n\nFeed-Forward Networks\n\nEmbeddings\n\nPositional Encoding\n\n5. Advantages of Self-Attention\n\n2/2 lessons\n\nComplexity Analysis\n\nLong-Range Dependencies\n\n6. Training Details\n\n4/4 lessons\n\nBatching Strategy\n\nTraining Efficiency\n\nLearning Rate Schedule\n\nRegularization\n\n7. Results and Impact\n\n3/3 lessons\n\nTranslation Results\n\nAblation Studies\n\nGeneralization\n\nLearning Map\nOPEN\nAttention Is All You Need\nMotivation\nCore Architecture\nAttention Mechanisms\nSupporting Components\nAdvantages of Self-Attention\nTraining Details\nResults and Impact\nRNN Limitations\nAttention-Only Model\nEncoder-Decoder Stack\nEncoder Layers\nDecoder Masking\nAttention Basics\nDot-Product Attention\nMulti-Head Attention\nAttention Types\nFeed-Forward Networks\nEmbeddings\nPositional Encoding\nComplexity Analysis\nLong-Range Dependencies\nBatching Strategy\nTraining Efficiency\nLearning Rate Schedule\nRegularization\nTranslation Results\nAblation Studies\nGeneralization\nJoined by 25 learners\nPREVIEW LESSON\nSTART LEARNING FOR FREE",
+  "links": [
+    {
+      "text": "Wondering",
+      "href": "/"
+    },
+    {
+      "text": "Home",
+      "href": "/"
+    },
+    {
+      "text": "Explore",
+      "href": "/explore"
+    },
+    {
+      "text": "Docs",
+      "href": "/docs"
+    }
+  ],
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "SIGN IN",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "VIEW PATH",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "LEARNING MAP",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "PERSONALIZE",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "2 SOURCES",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "RNN Limitations",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Attention-Only Model",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Encoder-Decoder Stack",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Encoder Layers",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Decoder Masking",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Attention Basics",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Dot-Product Attention",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Multi-Head Attention",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Attention Types",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Feed-Forward Networks",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Embeddings",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Positional Encoding",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Complexity Analysis",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Long-Range Dependencies",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Batching Strategy",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Training Efficiency",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Learning Rate Schedule",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Regularization",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Translation Results",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Ablation Studies",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Generalization",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "OPEN",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Start Learning for Free",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": " Preview Lesson ",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "PREVIEW LESSON",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "START LEARNING FOR FREE",
+      "placeholder": null,
+      "type": "button"
+    }
+  ],
+  "styles": [
+    {
+      "tag": "BODY",
+      "text": "Wondering\nHome\nExplore\nDocs\nSIGN IN\nAttention Is All You Need\n\nPaper by Ashish Vaswani et al.\n\nVaswa",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(255, 252, 240)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "SIGN IN",
+      "font": "\"Share Tech Mono\", SFMono-Regular, Consolas, monospace",
+      "size": "12px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(255, 252, 240)",
+      "radius": "8px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(255, 252, 240, 0.3)",
+      "radius": "8px"
+    },
+    {
+      "tag": "H1",
+      "text": "Attention Is All You Need",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "30px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "VIEW PATH",
+      "font": "\"Share Tech Mono\", SFMono-Regular, Consolas, monospace",
+      "size": "14px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(255, 252, 240)",
+      "radius": "12px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "LEARNING MAP",
+      "font": "\"Share Tech Mono\", SFMono-Regular, Consolas, monospace",
+      "size": "14px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(255, 252, 240)",
+      "radius": "12px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "PERSONALIZE",
+      "font": "\"Share Tech Mono\", SFMono-Regular, Consolas, monospace",
+      "size": "14px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(255, 252, 240)",
+      "radius": "12px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "2 SOURCES",
+      "font": "\"Share Tech Mono\", SFMono-Regular, Consolas, monospace",
+      "size": "14px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(255, 252, 240)",
+      "radius": "12px"
+    },
+    {
+      "tag": "H2",
+      "text": "What you will achieve",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "18px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "H2",
+      "text": "Learning Path",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "18px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "H2",
+      "text": "Attention Is All You Need",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "20px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "RNN Limitations",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Attention-Only Model",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Encoder-Decoder Stack",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Encoder Layers",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Decoder Masking",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Attention Basics",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Dot-Product Attention",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Multi-Head Attention",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Attention Types",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Feed-Forward Networks",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Embeddings",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Positional Encoding",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Complexity Analysis",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Long-Range Dependencies",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Batching Strategy",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Training Efficiency",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Learning Rate Schedule",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Regularization",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Translation Results",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    }
+  ]
+}

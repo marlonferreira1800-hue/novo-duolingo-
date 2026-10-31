@@ -1,0 +1,90 @@
+{
+  "url": "https://wondering.app/learn/attention-is-all-you-need-zp2vvu",
+  "text": "Overview of RNN Limitations and Transformers\nRNNs to Transformers\nAttention\nTransformers\nParallel Constraints\n& Scaling\nSequential Computation\nRNNs\nEach tier builds on the one below\n\nDiscover how sequential computation bottlenecks in recurrent neural networks drive the need for the parallelizable Transformer architecture.\n\nCHECK MY UNDERSTANDING\nBACK\nNEXT",
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "CHECK MY UNDERSTANDING",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "placeholder": null,
+      "type": "submit"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "BACK",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "NEXT",
+      "placeholder": null,
+      "type": "button"
+    }
+  ]
+}

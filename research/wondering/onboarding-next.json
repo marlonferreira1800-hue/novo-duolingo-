@@ -1,0 +1,18 @@
+{
+  "url": "https://wondering.app/get-started",
+  "text": "Thanks for being here!\n\nYou're one of the first to explore Wondering\n\nIt's early, your input will help shape what's next.\n\nJoin our Discord for feedback and learning tips!\n\nJOIN OUR\nDISCORD\nLET'S GO!",
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "JOIN OUR\nDISCORD",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "LET'S GO!",
+      "placeholder": null,
+      "type": "button"
+    }
+  ]
+}

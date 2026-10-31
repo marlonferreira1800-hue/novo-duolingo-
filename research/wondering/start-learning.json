@@ -1,0 +1,58 @@
+{
+  "url": "https://wondering.app/get-started",
+  "title": "Wondering - Learn What You Thought You Couldn't",
+  "text": "Thanks for being here!\n\nYou're one of the first to explore Wondering\n\nIt's early, your input will help shape what's next.\n\nJoin our Discord for feedback and learning tips!\n\nJOIN OUR\nDISCORD\nLET'S GO!",
+  "links": [],
+  "controls": [
+    {
+      "tag": "BUTTON",
+      "text": "JOIN OUR\nDISCORD",
+      "placeholder": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "LET'S GO!",
+      "placeholder": null,
+      "type": "button"
+    }
+  ],
+  "styles": [
+    {
+      "tag": "BODY",
+      "text": "Thanks for being here!\n\nYou're one of the first to explore Wondering\n\nIt's early, your input will he",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(255, 252, 240)",
+      "radius": "0px"
+    },
+    {
+      "tag": "H1",
+      "text": "You're one of the first to explore Wondering",
+      "font": "\"Public Sans\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "size": "24px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "JOIN OUR\nDISCORD",
+      "font": "\"Share Tech Mono\", SFMono-Regular, Consolas, monospace",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(255, 252, 240)",
+      "radius": "12px"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "LET'S GO!",
+      "font": "\"Share Tech Mono\", SFMono-Regular, Consolas, monospace",
+      "size": "16px",
+      "color": "rgb(38, 20, 18)",
+      "background": "rgb(122, 206, 255)",
+      "radius": "12px"
+    }
+  ]
+}
