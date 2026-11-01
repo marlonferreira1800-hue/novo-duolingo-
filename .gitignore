@@ -14,6 +14,8 @@ __pycache__/
 research/wondering/authenticated/
 research/wondering/open_login.py
 research/wondering/capture_authenticated.py
+preview/
+wondering-probe*.mjs
 
 # Local secrets, traces and machine-specific outputs.
 *.log
