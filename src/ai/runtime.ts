@@ -4,6 +4,8 @@ import { lessons } from '../../content';
 import { allEvidence } from './evidence';
 import { AiRunError } from './errors';
 import { createAgentOrchestrator } from './agents/orchestrator';
+import { auditAndPlanGitChanges, classifyFileOwner, isBlockedGitPath } from './agents/git-ops';
+import { recallCognitiveMemory, recordEpisodicMemory, upsertSemanticConcept, updateProceduralMemory } from './agents/memory';
 import { createAgentFixtureProvider } from './providers/agent-fixture';
 import { createFixtureProvider } from './providers/fixture';
 import { createLiveProvider, isLiveProviderConfigured } from './providers/live';
@@ -14,6 +16,17 @@ export function createAiRuntime(config:
   | { mode: 'fixture'; response: ProviderResponse; agentResponses?: Record<string, unknown>; onRun?: (record: RunRecord) => void; onAgentRun?: (record: AgentRunRecord) => void }
   | { mode: 'live'; onRun?: (record: RunRecord) => void; onAgentRun?: (record: AgentRunRecord) => void }
 ) {
+  const memory = {
+    recall: recallCognitiveMemory,
+    recordEpisode: recordEpisodicMemory,
+    upsertSemantic: upsertSemanticConcept,
+    updateProcedural: updateProceduralMemory,
+  };
+  const gitOps = {
+    auditAndPlan: auditAndPlanGitChanges,
+    classifyOwner: classifyFileOwner,
+    isBlockedPath: isBlockedGitPath,
+  };
   if (config.mode === 'fixture') {
     const provider = createFixtureProvider(config.response);
     const agentProvider = createAgentFixtureProvider(config.agentResponses ?? {});
@@ -21,6 +34,8 @@ export function createAiRuntime(config:
       studyPlan: createStudyPlanService({ provider, evidence: allEvidence, onRun: config.onRun }),
       tutor: createTutorService({ provider, evidence: allEvidence, onRun: config.onRun }),
       agents: createAgentOrchestrator({ provider: agentProvider, evidence: allEvidence, lessons, onRun: config.onAgentRun }),
+      memory,
+      gitOps,
     };
   }
   // Live mode: fails closed unless AI_API_KEY is set server-side AND D5 is approved via AI_LIVE_ENABLED=true.
@@ -34,5 +49,7 @@ export function createAiRuntime(config:
     studyPlan: createStudyPlanService({ provider, evidence: allEvidence, onRun: config.onRun }),
     tutor: createTutorService({ provider, evidence: allEvidence, onRun: config.onRun }),
     agents: createAgentOrchestrator({ provider, evidence: allEvidence, lessons, onRun: config.onAgentRun }),
+    memory,
+    gitOps,
   };
 }

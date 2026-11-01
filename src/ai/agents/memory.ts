@@ -174,7 +174,7 @@ function toProceduralEntry(questionId: string, lessonId: string, card: CardState
   const retrievability = computeRetrievability(card, now);
   const due = isDue(card, now);
   const recommendedAction: ProceduralRetentionEntry['recommendedAction'] =
-    due || retrievability < 0.7 ? 'review-now'
+    due || card.stability < 1 || card.state === 'relearning' || retrievability < 0.7 ? 'review-now'
     : card.difficulty >= 7 || retrievability < 0.85 ? 'reinforce-concept'
     : 'advance';
 
