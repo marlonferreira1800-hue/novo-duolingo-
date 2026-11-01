@@ -11,8 +11,9 @@ import type { Lesson } from '@/contracts/learning';
 import { AiRunError } from '../errors';
 import { orchestratorDefinition, getAgent } from './definitions';
 import { agentPrompts } from '../prompts/agents';
-import { executeTool } from './tools';
+import { executeTool, type AgentToolName } from './tools';
 import { createSession, appendMessage, appendHandoff, getSession } from './session';
+import { recordEpisodicMemory, recallCognitiveMemory } from './memory';
 
 const limitsSchema = z.strictObject({
   maxInputBytes: z.number().int().min(256).max(64000).default(32000),
@@ -53,12 +54,13 @@ export function createAgentOrchestrator(options: {
       let usage: z.infer<typeof tokenUsageSchema> | undefined;
       const handoffs: AgentHandoff[] = [];
       let toolCallCount = 0;
+      let memoryOpCount = 0;
       const trace: OrchestratorDraft['provenance']['agentTrace'] = [];
 
       function emit(outcome: AgentRunRecord['outcome'], error?: AiRunError) {
         const record: AgentRunRecord = {
           runId, sessionId: session.id, providerId: provider.id, providerKind: provider.kind,
-          steps: trace.length, handoffs, toolCalls: toolCallCount, outcome,
+          steps: trace.length, handoffs, toolCalls: toolCallCount, memoryOps: memoryOpCount, outcome,
           elapsedMs: Math.max(0, Math.round(performance.now() - started)),
         };
         if (error) record.errorCode = error.code;
@@ -109,6 +111,7 @@ export function createAgentOrchestrator(options: {
             const draft: OrchestratorDraft = {
               id: randomUUID(), status: 'draft', medicallyReviewed: false,
               sessionId: session.id, content: out.data,
+              memorySnapshot: recallCognitiveMemory(session.id),
               provenance: {
                 runId, createdAt: new Date().toISOString(), providerId: provider.id, providerKind: provider.kind,
                 schemaVersion: 1, evidenceKeys: keys, agentTrace: out.data.agentTrace,
@@ -128,11 +131,21 @@ export function createAgentOrchestrator(options: {
           if (!step.success) throw new AiRunError('INVALID_OUTPUT');
 
           trace.push({ agentId: currentAgent.id, role: currentAgent.role, action: step.data.action, handoffTo: step.data.handoffTo });
+          recordEpisodicMemory(session.id, {
+            role: currentAgent.role,
+            summary: step.data.action,
+            conceptIds: ['cardiac-output'],
+          });
+          memoryOpCount += 1;
 
           if (step.data.tool && currentAgent.allowedTools.includes(step.data.tool as never)) {
-            const result = executeTool(step.data.tool as 'search_evidence' | 'get_lesson' | 'compute_example', step.data.toolInput ?? {}, { evidence, lessons: options.lessons });
+            const toolName = step.data.tool as AgentToolName;
+            const result = executeTool(toolName, step.data.toolInput ?? {}, { evidence, lessons: options.lessons, sessionId: session.id });
             toolCallCount += 1;
-            appendMessage(session.id, { role: currentAgent.role, content: step.data.action, toolCalls: [{ tool: step.data.tool as 'search_evidence', input: step.data.toolInput ?? {}, output: result.ok ? result.data : result.error }] });
+            if (toolName === 'recall_memory' || toolName === 'consolidate_memory') {
+              memoryOpCount += 1;
+            }
+            appendMessage(session.id, { role: currentAgent.role, content: step.data.action, toolCalls: [{ tool: toolName, input: step.data.toolInput ?? {}, output: result.ok ? result.data : result.error }] });
           } else {
             appendMessage(session.id, { role: currentAgent.role, content: step.data.action });
           }
@@ -163,6 +176,7 @@ export function createAgentOrchestrator(options: {
         const draft: OrchestratorDraft = {
           id: randomUUID(), status: 'draft', medicallyReviewed: false,
           sessionId: session.id, content: out.data,
+          memorySnapshot: recallCognitiveMemory(session.id),
           provenance: {
             runId, createdAt: new Date().toISOString(), providerId: provider.id, providerKind: provider.kind,
             schemaVersion: 1, evidenceKeys: keys, agentTrace: out.data.agentTrace,

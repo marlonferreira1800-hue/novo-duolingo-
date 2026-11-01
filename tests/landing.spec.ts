@@ -153,7 +153,7 @@ test.describe('first use with an English browser', () => {
     await expect(page.getByTestId('study-locale')).toHaveValue('en');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await page.getByTestId('start-lesson-cardiac-output').click();
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(lesson.translations.en.stages[0].title);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(lesson.translations.en.hook);
   });
 });
 
@@ -167,7 +167,7 @@ test('root to app to lesson uses the new route without changing the study langua
   await expect(page.getByTestId('study-locale')).toHaveValue('pt-BR');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await page.getByTestId('start-lesson-cardiac-output').click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(lesson.translations['pt-BR'].stages[0].title);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(lesson.translations['pt-BR'].hook);
   await expect(page.getByRole('button', { name: messages.en.next, exact: true })).toBeVisible();
 });
 
@@ -223,7 +223,7 @@ for (const denyReads of [true, false]) {
     await expect(page.locator('.panel-footer')).toHaveText(messages.en.temporarySession);
     await expect(page.locator('.panel-footer')).not.toContainText(messages.en.savedLocally);
     await page.getByTestId('start-lesson-cardiac-output').click();
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(lesson.translations['pt-BR'].stages[0].title);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(lesson.translations['pt-BR'].hook);
     await page.goto('/');
     // Full navigation/reload must not pretend that an unwritable preference was persisted.
     await expectLanding(page, 'pt-BR');

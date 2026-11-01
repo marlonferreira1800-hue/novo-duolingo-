@@ -6,15 +6,21 @@ import { lessonCatalogSchema, lessonSchema, questionItems, questionOptions } fro
 
 describe('lesson catalog', () => {
   it('contains every lesson as a valid demo-unreviewed draft with unique ids', () => {
-    expect(lessons.length).toBe(3);
+    expect(lessons.length).toBe(30);
     expect(lessonCatalogSchema.parse(lessons)).toEqual(lessons);
-    expect(new Set(lessons.map((lesson) => lesson.id))).toEqual(new Set(['cardiac-output', 'cardiac-output-formula', 'cardiac-cycle']));
+    expect(new Set(lessons.map((lesson) => lesson.id)).size).toBe(lessons.length);
     expect(new Set(lessons.map((lesson) => lesson.questionId))).toHaveLength(lessons.length);
     for (const lesson of lessons) {
       expect(lesson.status).toBe('demo-unreviewed');
       expect(lessonSchema.safeParse(lesson).success).toBe(true);
-      expect(lesson.sectionId).toBe('cardio-physiology');
+      expect(lesson.translations['pt-BR'].hook.length).toBeGreaterThan(10);
+      expect(lesson.translations.en.hook.length).toBeGreaterThan(10);
     }
+  });
+
+  it('covers the three question types used by the Wondering method', () => {
+    const types = new Set(lessons.map((lesson) => lesson.translations.en.question.type));
+    expect(types).toEqual(new Set(['multiple-choice', 'fill', 'order']));
   });
 
   it('places every lesson in exactly one course section, matching its sectionId', () => {

@@ -4,7 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { NextIntlClientProvider, useTranslations } from 'next-intl';
 import { ArrowRight, BookMarked, BookOpen, Check, CheckCircle2, Clock3, HeartPulse, Lightbulb, LockKeyhole, RotateCcw, Search, ShieldCheck, Sparkles, Star } from 'lucide-react';
 import { catalog, lessons } from '../../../content';
-import type { LearningState, Lesson, Locale } from '@/contracts/learning';
+import type { Catalog, LearningState, Lesson, Locale } from '@/contracts/learning';
 import { localProgressStore } from '@/data/local-progress';
 import { syncLocalToRemote } from '@/data/remote-progress';
 import { useSession } from '@/auth/use-session';
@@ -41,7 +41,7 @@ export function LearningApp() {
   const activeLesson = reading?.lesson;
   const activeProgress = activeLesson ? getProgress(state, activeLesson) : null;
   return <NextIntlClientProvider locale={state.uiLocale} messages={{ app: messages[state.uiLocale] }} timeZone="UTC">
-    {reading && activeLesson && activeProgress ? <LessonReader lesson={activeLesson} progress={activeProgress} state={state} reviewOnly={reading.review} onSave={(next) => localProgressStore.saveProgress(activeLesson, next)} onExit={() => { setReading(null); setView('home'); }} onLocales={onLocales}/> : <LearningShell view={view} onNavigate={setView} xp={totalXp(state)} state={state} onLocales={onLocales} persistent={localProgressStore.getPersistenceStatus() !== 'unavailable'} userId={userId} onSignOut={() => void signOut()}>
+    {reading && activeLesson && activeProgress ? <LessonReader lesson={activeLesson} progress={activeProgress} state={state} reviewOnly={reading.review} onSave={(next) => localProgressStore.saveProgress(activeLesson, next)} onExit={() => { setReading(null); setView('home'); }} onLocales={onLocales}/> : <LearningShell view={view} onNavigate={setView} xp={totalXp(state)} state={state} onLocales={onLocales} persistent={localProgressStore.getPersistenceStatus() !== 'unavailable'} courseTitle={catalog.course.translations[state.studyLocale].title} userId={userId} onSignOut={() => void signOut()}>
       <DemoNotice/>
       <StorageNotice/>
       {view === 'home' && <LearningPath state={state} onBegin={begin}/>}
@@ -110,11 +110,22 @@ function Library({ state, onBegin }: { state: LearningState; onBegin: (lesson: L
   const t = useTranslations('app');
   const [query, setQuery] = useState('');
   const normalized = (value: string) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
-  const matches = lessons.filter((lesson) => {
+  const matches = (section: Catalog['course']['sections'][number], lesson: Lesson) => {
+    if (normalized(section.translations[state.studyLocale].title).includes(normalized(query))) return true;
     const text = lesson.translations[state.studyLocale];
     return normalized(`${text.courseTitle} ${text.title} ${text.description}`).includes(normalized(query));
-  });
-  return <section className="library-page"><span className="eyebrow">{t('library')}</span><h1>{t('libraryHeading')}</h1><p className="page-description">{t('libraryDescription', { count: lessons.length })}</p><label className="search-field"><Search size={18} aria-hidden="true"/><input aria-label={t('search')} placeholder={t('search')} value={query} onChange={(event) => setQuery(event.target.value)}/></label><h2>{t('foundations')}</h2>{matches.length ? matches.map((lesson) => <LibraryCard key={lesson.id} lesson={lesson} state={state} onBegin={onBegin}/>) : <p role="status">{t('noResults')}</p>}</section>;
+  };
+  const groups = catalog.course.sections
+    .map((section) => ({ section, sectionLessons: section.lessonIds.map((id) => lessons.find((lesson) => lesson.id === id)!).filter((lesson) => matches(section, lesson)) }))
+    .filter((group) => group.sectionLessons.length > 0);
+  return <section className="library-page"><span className="eyebrow">{t('library')}</span><h1>{t('libraryHeading')}</h1><p className="page-description">{t('libraryDescription', { count: lessons.length, sections: catalog.course.sections.length })}</p><label className="search-field"><Search size={18} aria-hidden="true"/><input aria-label={t('search')} placeholder={t('search')} value={query} onChange={(event) => setQuery(event.target.value)}/></label>
+    {groups.length ? groups.map(({ section, sectionLessons }) => <LibrarySection key={section.id} section={section} sectionLessons={sectionLessons} state={state} onBegin={onBegin}/>) : <p role="status">{t('noResults')}</p>}
+  </section>;
+}
+function LibrarySection({ section, sectionLessons, state, onBegin }: { section: Catalog['course']['sections'][number]; sectionLessons: Lesson[]; state: LearningState; onBegin: (lesson: Lesson, review?: boolean) => void }) {
+  const t = useTranslations('app');
+  const done = sectionLessons.filter((lesson) => getProgress(state, lesson).completedAt).length;
+  return <div className="library-section" data-testid={`library-section-${section.id}`}><header className="library-section-header"><h2 lang={state.studyLocale}>{section.translations[state.studyLocale].title}</h2><span>{t('lessonsProgress', { done, count: sectionLessons.length })}</span></header><div className="library-grid">{sectionLessons.map((lesson) => <LibraryCard key={lesson.id} lesson={lesson} state={state} onBegin={onBegin}/>)}</div></div>;
 }
 function LibraryCard({ lesson, state, onBegin }: { lesson: Lesson; state: LearningState; onBegin: (lesson: Lesson, review?: boolean) => void }) {
   const t = useTranslations('app');

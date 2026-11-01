@@ -9,7 +9,15 @@ export const agentDefinitions: readonly AgentDefinition[] = [
     role: 'planner',
     promptId: 'agent-planner',
     promptVersion: '1.0.0',
-    allowedTools: ['search_evidence'],
+    allowedTools: ['search_evidence', 'recall_memory'],
+    maxOutputTokens: 600,
+  },
+  {
+    id: 'memory-curator',
+    role: 'memory-curator',
+    promptId: 'agent-memory-curator',
+    promptVersion: '1.0.0',
+    allowedTools: ['recall_memory', 'consolidate_memory', 'search_evidence'],
     maxOutputTokens: 600,
   },
   {
@@ -17,7 +25,7 @@ export const agentDefinitions: readonly AgentDefinition[] = [
     role: 'tutor',
     promptId: 'agent-tutor',
     promptVersion: '1.0.0',
-    allowedTools: ['search_evidence', 'get_lesson'],
+    allowedTools: ['search_evidence', 'get_lesson', 'recall_memory'],
     maxOutputTokens: 800,
   },
   {

@@ -15,6 +15,7 @@ async function openQuestion(page: Page) {
   await page.getByTestId('start-lesson-cardiac-output').click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Testar meu entendimento', exact: true }).click();
 }
 async function answer(page: Page, id: string) {
@@ -22,11 +23,11 @@ async function answer(page: Page, id: string) {
   await page.getByTestId('check-answer').click();
 }
 async function solveOrder(page: Page, correctIds: string[]) {
-  for (const target of correctIds) {
+  for (let i = 0; i < correctIds.length; i++) {
     for (let guard = 0; guard < correctIds.length; guard++) {
-      const first = await page.locator('.order-item').first().getAttribute('data-testid');
-      if (first === `order-item-${target}`) break;
-      await page.getByTestId(`order-up-${target}`).click();
+      const at = await page.locator('.order-item').nth(i).getAttribute('data-testid');
+      if (at === `order-item-${correctIds[i]}`) break;
+      await page.getByTestId(`order-up-${correctIds[i]}`).click();
     }
   }
   await page.getByTestId('check-answer').click();
@@ -90,9 +91,10 @@ test('opening hook is shown on the first stage of a lesson', async ({ page }) =>
   await page.goto('/app');
   await page.getByTestId('start-lesson-cardiac-output').click();
   await expect(page.locator('.lesson-hook')).toContainText('bomba que nunca para');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Quanto um ventrículo bombeia por minuto?');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('bomba que nunca para');
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
-  await expect(page.locator('.lesson-hook')).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Quanto um ventrículo bombeia por minuto?');
+  await expect(page.locator('.hook-screen')).toHaveCount(0);
 });
 
 test('independent languages, stable stage and preferences after refresh', async ({ page }, info) => {
@@ -100,9 +102,10 @@ test('independent languages, stable stage and preferences after refresh', async 
   await page.getByTestId('study-locale').selectOption('en');
   await expect(page.getByTestId('interface-locale')).toHaveValue('pt-BR');
   await page.getByTestId('start-lesson-cardiac-output').click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('How much does one ventricle pump per minute?');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('pump that never stops');
   await expect(page.locator('.lesson-hook')).toContainText('pump that never stops');
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('How much does one ventricle pump per minute?');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Two measurements, one calculation');
   await page.getByTestId('interface-locale').selectOption('en');
   await expect(page.getByRole('button', { name: 'Next', exact: true })).toBeVisible();
@@ -114,6 +117,9 @@ test('independent languages, stable stage and preferences after refresh', async 
   await expect(page.getByTestId('interface-locale')).toHaveValue('en');
   await expect(page.getByTestId('study-locale')).toHaveValue('en');
   await page.getByTestId('start-lesson-cardiac-output').click();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('How much does one ventricle pump per minute?');
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Two measurements, one calculation');
   await page.getByTestId('study-locale').selectOption('pt-BR');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Duas medidas, um cálculo');
@@ -126,6 +132,8 @@ test('cardiac cycle lesson uses order steps and completes independently', async 
   test.setTimeout(90000);
   await page.goto('/app');
   await page.getByTestId('start-lesson-cardiac-cycle').click();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('sequência precisa de eventos');
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Um ciclo, três momentos');
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
@@ -155,6 +163,8 @@ test('fill-in-the-blank lesson completes with the correct term', async ({ page }
   await page.goto('/app');
   await page.getByTestId('start-lesson-cardiac-output-formula').click();
   await expect(page.locator('.lesson-hook')).toContainText('Qual número falta');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Qual número falta');
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Testar meu entendimento', exact: true }).click();
@@ -171,7 +181,7 @@ test('fill-in-the-blank lesson completes with the correct term', async ({ page }
 test('sections are numbered on the learning path with per-section counters', async ({ page }) => {
   await page.goto('/app');
   await expect(page.locator('.section-header h2').first()).toHaveText('01 · Fisiologia cardiovascular');
-  await expect(page.locator('.section-header p').first()).toHaveText('0 de 3 lições concluídas');
+  await expect(page.locator('.section-header p').first()).toHaveText('0 de 5 lições concluídas');
 });
 
 test('library search and lesson entry are functional', async ({ page }) => {
@@ -181,7 +191,7 @@ test('library search and lesson entry are functional', async ({ page }) => {
   await expect(page.getByRole('status')).toHaveText('Nenhum curso corresponde à busca.');
   await page.getByRole('textbox', { name: 'Buscar cursos', exact: true }).fill('cardiaco');
   await page.getByTestId('library-lesson-cardiac-output').click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Quanto um ventrículo bombeia por minuto?');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('bomba que nunca para');
 });
 
 test('unavailable storage is explicit and does not break the lesson', async ({ page }) => {
@@ -210,5 +220,5 @@ test('invalid stored data recovers with a visible notice', async ({ page }) => {
   await page.goto('/app');
   await expect(page.getByRole('status')).toContainText('registro salvo incompatível');
   await page.getByTestId('start-lesson-cardiac-output').click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Quanto um ventrículo bombeia por minuto?');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('bomba que nunca para');
 });

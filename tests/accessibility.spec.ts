@@ -23,6 +23,9 @@ test('reader moves focus to the heading on each stage and to the feedback after 
   await page.getByTestId('start-lesson-cardiac-output').click();
   const heading = page.getByRole('heading', { level: 1 });
   await expect(heading).toBeFocused();
+  await expect(heading).toContainText('bomba que nunca para');
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
+  await expect(heading).toBeFocused();
   await expect(heading).toHaveText('Quanto um ventrículo bombeia por minuto?');
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await expect(heading).toBeFocused();
@@ -59,6 +62,7 @@ test('reduced motion disables transitions and animations', async ({ page }) => {
 test('intermediate stage and unsubmitted selection survive reload and a study-language switch', async ({ page }) => {
   await page.goto('/app');
   await page.getByTestId('start-lesson-cardiac-output').click();
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await page.reload();

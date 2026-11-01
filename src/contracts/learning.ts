@@ -9,7 +9,7 @@ const stageSchema = z.object({
   title: z.string().min(1),
   paragraphs: z.array(z.string().min(1)).min(1),
   takeaway: z.string().min(1),
-  diagram: z.enum(['pump', 'equation', 'calculation', 'phases', 'valves', 'sounds']),
+  diagram: z.enum(['pump', 'equation', 'calculation', 'phases', 'valves', 'sounds', 'membrane', 'mitochondria', 'tissue', 'bone', 'lung', 'kidney', 'neuron', 'inflammation', 'endocrine', 'embryo', 'dna', 'immune', 'microbe', 'intestine', 'sarcomere', 'ecg', 'pressure', 'adme', 'incidence', 'parasite', 'brain', 'chest', 'neoplasia', 'stats']),
 });
 const optionSchema = z.object({
   id: z.string().min(1),

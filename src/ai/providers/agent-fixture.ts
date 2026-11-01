@@ -11,6 +11,7 @@ export function createAgentFixtureProvider(responses: Record<string, unknown>): 
       request.signal.throwIfAborted();
       const promptId = request.prompt.system.includes('orchestrator') ? 'agent-orchestrator'
         : request.prompt.system.includes('planner') ? 'agent-planner'
+        : request.prompt.system.includes('memory-curator') ? 'agent-memory-curator'
         : request.prompt.system.includes('tutor') ? 'agent-tutor'
         : request.prompt.system.includes('question-generator') ? 'agent-question-gen'
         : 'agent-fact-checker';

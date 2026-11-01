@@ -1,6 +1,8 @@
 import 'server-only';
 import { evidenceKey, type Evidence } from '@/contracts/ai';
 import type { Lesson } from '@/contracts/learning';
+import { recallCognitiveMemory, upsertSemanticConcept, updateProceduralMemory } from './memory';
+import type { ReviewGrade } from '../fsrs-scheduler';
 
 // Ferramentas auditadas disponíveis aos agentes.
 // NUNCA: web search, file read, URL fetch, publish, XP, budget change.
@@ -52,12 +54,17 @@ export function computeExample(expr: string): ToolResult {
   }
 }
 
-export type AgentToolName = 'search_evidence' | 'get_lesson' | 'compute_example';
+export type AgentToolName =
+  | 'search_evidence'
+  | 'get_lesson'
+  | 'compute_example'
+  | 'recall_memory'
+  | 'consolidate_memory';
 
 export function executeTool(
   name: AgentToolName,
   input: Record<string, unknown>,
-  ctx: { evidence: readonly Evidence[]; lessons: readonly Lesson[] },
+  ctx: { evidence: readonly Evidence[]; lessons: readonly Lesson[]; sessionId?: string },
 ): ToolResult {
   switch (name) {
     case 'search_evidence':
@@ -66,6 +73,37 @@ export function executeTool(
       return getLessonById(ctx.lessons, String(input.lessonId ?? ''));
     case 'compute_example':
       return computeExample(String(input.expr ?? ''));
+    case 'recall_memory': {
+      if (!ctx.sessionId) return { ok: false, error: 'SESSION_REQUIRED' };
+      const snapshot = recallCognitiveMemory(ctx.sessionId, input.query ? String(input.query) : undefined);
+      return { ok: true, data: snapshot };
+    }
+    case 'consolidate_memory': {
+      if (!ctx.sessionId) return { ok: false, error: 'SESSION_REQUIRED' };
+      const conceptId = String(input.conceptId ?? 'cardiac-output').replace(/[^a-z0-9._-]/gi, '').toLowerCase() || 'cardiac-output';
+      const lessonId = String(input.lessonId ?? 'cardiac-output').replace(/[^a-z0-9._-]/gi, '').toLowerCase() || 'cardiac-output';
+      const validKeys = ctx.evidence.map(evidenceKey);
+      const suppliedKeys = Array.isArray(input.evidenceKeys)
+        ? input.evidenceKeys.map(String).filter(k => validKeys.includes(k))
+        : [];
+      const evidenceKeys = suppliedKeys.length > 0 ? suppliedKeys : validKeys.slice(0, 1);
+      const semantic = upsertSemanticConcept(ctx.sessionId, {
+        conceptId,
+        lessonId,
+        masteryDelta: typeof input.masteryDelta === 'number' ? input.masteryDelta : undefined,
+        misconceptionDetected: Boolean(input.misconceptionDetected),
+        evidenceKeys,
+      });
+      let procedural;
+      if (input.questionId && typeof input.grade === 'number' && [1, 2, 3, 4].includes(input.grade)) {
+        procedural = updateProceduralMemory(ctx.sessionId, {
+          questionId: String(input.questionId),
+          lessonId,
+          grade: input.grade as ReviewGrade,
+        });
+      }
+      return { ok: true, data: { semantic, procedural } };
+    }
     default:
       return { ok: false, error: 'UNKNOWN_TOOL' };
   }

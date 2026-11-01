@@ -21,6 +21,7 @@ export function LessonReader({ lesson, progress, state, onSave, onExit, onLocale
   const question = content.question;
   const [phase, setPhase] = useState<Phase>(reviewOnly || progress.selectedOptionId || progress.orderedIds ? 'quiz' : 'content');
   const [stage, setStage] = useState(progress.stage);
+  const [atHook, setAtHook] = useState(phase === 'content' && progress.stage === 0 && !progress.selectedOptionId && !progress.orderedIds);
   const [selected, setSelected] = useState<string | null>(reviewOnly ? null : progress.selectedOptionId);
   const [orderIds, setOrderIds] = useState<string[]>(() => {
     const items = questionItems(question);
@@ -38,8 +39,8 @@ export function LessonReader({ lesson, progress, state, onSave, onExit, onLocale
     ? correctOrder.length === orderIds.length && correctOrder.every((id, index) => id === orderIds[index])
     : selected === lesson.correctOptionId;
   const active = content.stages[stage];
-  const stepIndex = phase === 'content' ? stage : phase === 'quiz' ? 3 : 4;
-  useEffect(() => { headingRef.current?.focus({ preventScroll: true }); window.scrollTo(0, 0); }, [phase, stage]);
+  const stepIndex = phase === 'content' ? (atHook ? 0 : stage + 1) : phase === 'quiz' ? 4 : 5;
+  useEffect(() => { headingRef.current?.focus({ preventScroll: true }); window.scrollTo(0, 0); }, [phase, stage, atHook]);
   useEffect(() => { if (submitted) feedbackRef.current?.focus({ preventScroll: true }); }, [submitted]);
   function advance(nextStage: number) {
     setStage(nextStage);
@@ -83,12 +84,12 @@ export function LessonReader({ lesson, progress, state, onSave, onExit, onLocale
   const correctItems = questionItems(question)?.slice().sort((a, b) => correctOrder.indexOf(a.id) - correctOrder.indexOf(b.id)) ?? [];
   return <div className="reader">
     <a className="skip-link" href="#reader-main">{t('skipToContent')}</a>
-    <header className="reader-header"><button className="icon-button" aria-label={t('exit')} onClick={onExit}><X size={23} aria-hidden="true"/></button><div className="step-dots" role="progressbar" aria-label={t('lessonProgress')} aria-valuemin={0} aria-valuemax={5} aria-valuenow={stepIndex + 1}>{[0, 1, 2, 3, 4].map((index) => <span key={index} aria-hidden="true" className={index === stepIndex ? 'current' : index < stepIndex ? 'done' : ''}/>)}</div><span className="reader-xp"><Star size={15} aria-hidden="true"/> {lesson.xp} XP</span></header>
+    <header className="reader-header"><button className="icon-button" aria-label={t('exit')} onClick={onExit}><X size={23} aria-hidden="true"/></button><div className="step-dots" role="progressbar" aria-label={t('lessonProgress')} aria-valuemin={0} aria-valuemax={6} aria-valuenow={stepIndex + 1}>{[0, 1, 2, 3, 4, 5].map((index) => <span key={index} aria-hidden="true" className={index === stepIndex ? 'current' : index < stepIndex ? 'done' : ''}/>)}</div><span className="reader-xp"><Star size={15} aria-hidden="true"/> {lesson.xp} XP</span></header>
     <div className="reader-languages"><LanguageControls state={state} onChange={onLocales}/></div>
     <main className="reader-body" id="reader-main" tabIndex={-1}>
-      <div className="reader-kicker"><span>{t(reviewOnly ? 'reviewMode' : 'foundational')}</span><span>{t('step', { current: stepIndex + 1, total: 5 })}</span></div>
-      {phase === 'content' && <section lang={state.studyLocale}>
-        {stage === 0 && <p className="lesson-hook"><span className="eyebrow">{d.hookLabel}</span>{content.hook}</p>}
+      <div className="reader-kicker"><span>{t(reviewOnly ? 'reviewMode' : 'foundational')}</span><span>{t('step', { current: stepIndex + 1, total: 6 })}</span></div>
+      {phase === 'content' && atHook && <section lang={state.studyLocale} className="hook-screen"><h1 className="lesson-hook hook-hero" ref={headingRef} tabIndex={-1}>{content.hook}</h1><p className="hook-lesson-title">{content.title}</p></section>}
+      {phase === 'content' && !atHook && <section lang={state.studyLocale}>
         <h1 ref={headingRef} tabIndex={-1}>{active.title}</h1>
         <LessonDiagram kind={active.diagram} locale={state.studyLocale}/>
         <div className="lesson-copy">{active.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
@@ -125,6 +126,6 @@ export function LessonReader({ lesson, progress, state, onSave, onExit, onLocale
       <details className="lesson-sources"><summary><BookOpen size={15} aria-hidden="true"/>{t('sourcesTitle')}</summary>{lesson.sources.map((source) => <a key={source.id} href={source.url} target="_blank" rel="noreferrer">{source.title} · {source.section} ↗</a>)}</details>
       <p className="reader-disclaimer">{t('demoNotice')}</p>
     </main>
-    <footer className="reader-actions">{phase === 'result' ? <button className="button primary full-width" onClick={onExit}>{t('returnHome')}<ArrowRight size={18} aria-hidden="true"/></button> : <><button className="button secondary reader-back" onClick={() => { if (phase === 'quiz' && !reviewOnly) setPhase('content'); else if (phase === 'content' && stage > 0) advance(stage - 1); else onExit(); }}><ArrowLeft size={17} aria-hidden="true"/>{t('back')}</button>{phase === 'content' ? <button className="button primary" onClick={() => stage < 2 ? advance(stage + 1) : setPhase('quiz')}>{t(stage < 2 ? 'next' : 'checkUnderstanding')}<ArrowRight size={17} aria-hidden="true"/></button> : submitted ? correct ? <button className="button primary" data-testid="complete-lesson" onClick={finish}>{t('finish')}<Check size={18} aria-hidden="true"/></button> : <button className="button primary" onClick={() => { setSubmitted(false); setSelected(null); setOrderIds((current) => current); if (!reviewOnly) onSave({ ...progress, submitted: false, selectedOptionId: null, orderedIds: null }); }}>{t('tryAgain')}<RotateCcw size={17} aria-hidden="true"/></button> : <button className="button primary" data-testid="check-answer" disabled={question.type === 'order' ? orderIds.length === 0 : !selected} onClick={submit}>{t('checkAnswer')}<Check size={18} aria-hidden="true"/></button>}</>}</footer>
+    <footer className="reader-actions">{phase === 'result' ? <button className="button primary full-width" onClick={onExit}>{t('returnHome')}<ArrowRight size={18} aria-hidden="true"/></button> : <><button className="button secondary reader-back" onClick={() => { if (phase === 'quiz' && !reviewOnly) { setPhase('content'); setAtHook(false); } else if (phase === 'content' && !atHook && stage > 0) advance(stage - 1); else if (phase === 'content' && !atHook) setAtHook(true); else onExit(); }}><ArrowLeft size={17} aria-hidden="true"/>{t('back')}</button>{phase === 'content' ? <button className="button primary" onClick={() => { if (atHook) setAtHook(false); else if (stage < 2) advance(stage + 1); else setPhase('quiz'); }}>{t(atHook || stage < 2 ? 'next' : 'checkUnderstanding')}<ArrowRight size={17} aria-hidden="true"/></button> : submitted ? correct ? <button className="button primary" data-testid="complete-lesson" onClick={finish}>{t('finish')}<Check size={18} aria-hidden="true"/></button> : <button className="button primary" onClick={() => { setSubmitted(false); setSelected(null); setOrderIds((current) => current); if (!reviewOnly) onSave({ ...progress, submitted: false, selectedOptionId: null, orderedIds: null }); }}>{t('tryAgain')}<RotateCcw size={17} aria-hidden="true"/></button> : <button className="button primary" data-testid="check-answer" disabled={question.type === 'order' ? orderIds.length === 0 : !selected} onClick={submit}>{t('checkAnswer')}<Check size={18} aria-hidden="true"/></button>}</>}</footer>
   </div>;
 }

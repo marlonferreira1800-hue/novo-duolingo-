@@ -120,6 +120,11 @@ input, select, textarea { font-size: 16px; }
 .search-field { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; max-width: 420px; margin: 29px 0 33px; color: var(--muted); }
 .search-field input { width: 100%; background: none; border: 0; min-width: 0; font-size: 16px; color: var(--ink); }
 .library-page h2 { font-size: 19px; margin-bottom: 18px; }
+.library-section { margin-top: 38px; }
+.library-section-header { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 20px; }
+.library-section-header h2 { margin-bottom: 0; }
+.library-section-header > span { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
 .library-course { max-width: 350px; width: 100%; text-align: left; padding: 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: 0 3px 0 #e4ddcf; }
 .library-cover { height: 206px; position: relative; background: #dbe9d8; padding: 7px; }
 .cover-badge { position: absolute; top: 14px; left: 14px; background: #fffcf0dc; padding: 3px 9px; font: 9px var(--mono); border-radius: 6px; }
@@ -163,6 +168,8 @@ input, select, textarea { font-size: 16px; }
 .formula-chips { display: flex; align-items: center; justify-content: center; gap: 18px; }
 .formula-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; width: 170px; min-height: 147px; padding: 13px 9px; border-radius: 12px; text-align: center; }
 .blue-chip { background: #dcedf4; color: #3e6d80; }
+.blue-node { background: #dcedf4; color: #3e6d80; }
+.green-node { background: #e1ebd9; color: #537255; }
 .green-chip { background: #e1ebd9; color: #537255; }
 .formula-chip span { font-size: 11px; }
 .formula-chip strong { font-size: 29px; font-weight: 500; letter-spacing: -.04em; }
@@ -209,6 +216,9 @@ input, select, textarea { font-size: 16px; }
 .lesson-hook { border: 1px solid #d9e4d2; background: #eef3e7; border-radius: 12px; padding: 18px 20px; margin-bottom: 22px; }
 .lesson-hook .eyebrow { color: #5c7a4d; margin-bottom: 7px; }
 .lesson-hook { font-size: 17px; line-height: 1.7; letter-spacing: -.01em; }
+.hook-hero { border: 0; background: transparent; padding: 34px 10px 10px; margin-bottom: 0; text-align: center; font-size: clamp(27px, 3.6vw, 40px); line-height: 1.4; letter-spacing: -.035em; font-weight: 500; max-width: 760px; margin-inline: auto; }
+.hook-hero:focus { outline: none; }
+.hook-lesson-title { text-align: center; color: var(--muted); font-size: 14px; margin: 18px 0 8px; }
 .fill-blank { font-size: 22px; letter-spacing: -.02em; background: #f5f0df; border: 1px dashed #cbbfa4; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 15px; }
 .order-list { list-style: none; padding: 0; margin: 0; }
 .order-item { display: flex; align-items: center; gap: 14px; padding: 13px 15px; min-height: 62px; border: 1px solid var(--line); border-radius: 11px; box-shadow: 0 3px 0 #e5dfd1; margin-bottom: 12px; background: var(--surface); }

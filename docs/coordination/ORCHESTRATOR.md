@@ -2,16 +2,20 @@
 
 Registro vivo das decisões pendentes do Medora. Atualizar a cada incremento: mudar status, registrar resultado e ativar a próxima decisão. Não é um agente autônomo de execução; é a fila de decisões que o humano (ou coordenador designado) administra.
 
-## Estado atual (31/10/2026, após implementação completa: D9-D13 infra + D6 FSRS + D5 adapter)
+## Estado atual (01/11/2026, após c8882ad e D14 na working tree)
 
-- Fundação (etapa 0) e base executável (etapa 1) concluídas; fatia demonstrativa da etapa 2 integrada.
-- **D9–D12 encerradas** (contratos, editorial status, Supabase local, auth+sync+gabarito).
-- **D6 (FSRS) implementado**: scheduler server-side (`src/ai/fsrs-scheduler.ts`), server actions (`src/app/actions/review.ts`), UI de fila (`src/features/review/review-queue.tsx` integrada na nav), 7 testes unitários.
-- **D5 preparado**: adapter live provider (`src/ai/providers/live.ts`) pronto — só falta `OPENAI_API_KEY` no `.env` + aprovação D5. Modo live continua falhando fechado até lá.
-- **D8 infra pronta**: `/admin/review` registra decisões humanas em `review_decisions`. Aguardando revisor humano real.
-- **Validação final (31/10):** `tsc` ok; `eslint` ok; **180 testes Vitest (13 arquivos)** ok; `ai:eval` 50/50 ok; `next build` ok — rotas `/`, `/app`, `/login`, `/admin/review`.
-- **Bloqueio de infra real:** Docker Desktop não está rodando neste ambiente → emulador Supabase (`supabase start`) não sobe. Testes E2E autenticados (`tests/auth.spec.ts`) pulam automaticamente sem `SUPABASE_URL`.
-- Git local: commits anteriores + novos arquivos prontos para commit quando autorizado.
+- Fundação (etapa 0), base executável (etapa 1) e expansão curricular do Ciclo Básico integradas.
+- **Commit `c8882ad` registrado**: Orquestrador multiagente de IA em `src/ai/agents/` (`definitions.ts`, `orchestrator.ts`, `session.ts`, `tools.ts`, prompts modulares por agente), rota/página `/create` (`create-page.tsx`), server actions de agentes (`src/app/actions/agents.ts`), 3ª lição (`cardiac-output-formula`), FSRS scheduler e base de auth/dados Supabase.
+- **Incremento D14 (working tree)**: Expansão do Catálogo do Ciclo Básico para **30 lições bilíngues em 21 seções curriculares** (de Fisiologia Cardiovascular a Neuroanatomia), 30 diagramas SVG semânticos em `lesson-diagram.tsx`, validação estrita com `catalogSchema` em `src/contracts/learning.ts`, suporte aos 3 tipos de questão do método Wondering (`multiple-choice`, `fill`, `order`), agrupamento e navegação por seção na UI (`learning-app.tsx`), i18n completo (`messages.ts`) e testes alinhados.
+- **Validação real executada e verde (01/11/2026):**
+  - `npm run typecheck` (`tsc --noEmit`): 0 erros.
+  - `npm run lint` (`eslint src content tests`): 0 avisos/erros.
+  - `npx vitest run`: **14 suites, 195 testes unitários e de integração aprovados** (100% verde).
+  - `npm run ai:eval`: **3 suites, 60 testes de IA aprovados** (`agents.test.ts`, `study-plan.test.ts`, `boundaries.test.ts`).
+  - `npm run build`: Build Next.js 16.4.3 Turbopack concluído com sucesso gerando 5 rotas (`/`, `/_not-found`, `/admin/review`, `/app`, `/login`).
+- **Higiene Git**: Existem arquivos temporários de probe/inspeção visual (`preview/`, `wondering-probe.mjs`, `wondering-probe2.mjs`) que NÃO devem subir ao stage; devem ser removidos antes do commit de D14. Commit pendente de autorização explícita do usuário.
+- **Bloqueio de infra real remanescente:** Docker Desktop não iniciado neste ambiente local → emulador Supabase (`supabase start`) inativo. Testes E2E autenticados pulam graciosamente sem `SUPABASE_URL`.
+- **Gate médico:** Todas as 30 lições permanecem com status `demo-unreviewed` (D8 bloqueia publicação comercial/clínica).
 
 ## Regras de orquestração
 
@@ -39,13 +43,20 @@ Registro vivo das decisões pendentes do Medora. Atualizar a cada incremento: mu
 | D11 | Ambiente Supabase local (emulador + migration 0001 + config) — Fase C | **concluída 31/10** | migration 0001_init.sql com RLS completa |
 | D12 | Etapa 3 fases 0-4: auth (magic link) + sync local→remoto + gabarito servidor — Fase D | **infra concluída 31/10** (rota /login, middleware, server actions, useSession, RemoteProgressStore) | requer emulador Supabase rodando para E2E real; desbloqueia D5/D6 quando testado |
 | D13 | D5 IA live + D6 FSRS | **D6 implementado; D5 adapter pronto (falta credencial)** | D6: pronto para teste com emulador. D5: falta OPENAI_API_KEY + aprovação + orçamento |
+| D14 | Expansão curricular do Ciclo Básico: 30 lições bilíngues em 21 seções, 30 diagramas SVG semânticos, 3 tipos de questão (multiple-choice/fill/order) e validação de curso via `catalogSchema` | **concluída na working tree (validação completa verde; commit pendente de autorização)** | D2 concluída; revisão médica (D8) antes de publicar |
 
 ## Decisão ativa
 
-**Aguardando humano/infra externa.** Todo o código está implementado e validado (180 testes verdes). Bloqueios restantes são externos ao código:
-1. **D8**: revisor médico humano acessa `/admin/review` e registra decisão.
-2. **D12 teste real**: ligar Docker Desktop → `npx supabase start` → rodar `npm run test:e2e` (auth.spec.ts ativa automaticamente).
-3. **D5 live**: adicionar `OPENAI_API_KEY` no `.env` → `createAiRuntime({ mode: 'live' })` passa a funcionar.
+**D14 validada na working tree e aguardando autorização para commit limpo.**
+A working tree contém a expansão curricular de 30 lições / 21 seções com validação integral (195 testes verdes, ai:eval 60/60 e Next build com 5 rotas).
+Passos necessários para o checkpoint Git:
+1. **Higiene Git:** Excluir arquivos de inspeção/probe temporários (`preview/`, `wondering-probe.mjs`, `wondering-probe2.mjs`) para não poluir o histórico.
+2. **Commit D14:** Registrar o commit de D14 assim que autorizado pelo usuário.
+
+Bloqueios externos remanescentes:
+1. **D8**: Revisor médico humano acessa `/admin/review` e registra decisão editorial/médica (as 30 lições continuam como rascunhos `demo-unreviewed`).
+2. **D12 teste real**: Ligar Docker Desktop → `npx supabase start` → rodar `npm run test:e2e` (ativação automática dos testes autenticados).
+3. **D5 live**: Configurar `OPENAI_API_KEY` no `.env` e aprovação de quotas/orçamento para ativar o runtime live.
 
 ## Histórico de decisões encerradas
 
@@ -60,3 +71,5 @@ Registro vivo das decisões pendentes do Medora. Atualizar a cada incremento: mu
 | 31/10/2026 | D8 (preparação) — `docs/coordination/D8-medical-review-packet.md`: escopo (2 lições `demo-unreviewed` rev 1, pt-BR/en), fonte declarada (OpenStax A&P 2e §19.4), checklist por lição/idioma, fluxo editorial proposto `draft → in_review → approved → published` com registro por revisão+idioma; README atualizado com checkpoint D1–D4 (145 unit, E2E 22+22) | Documento; gate de produção permanece fechado | Aguardando revisor médico humano; automação não aprova conteúdo clínico |
 | 31/10/2026 | Agentes de desenvolvimento criados em `agents/` (coordinator, content-medico, ui-ux, learning, dados, qa, ai-engineer) + plano de desbloqueio `docs/coordination/ACTION-PLAN-unblock.md` com fases A-F para resolver D8/ADR 0002/etapa 3/D5/D6. D9-D13 adicionadas ao backlog. AGENTS.md atualizado com referências aos agentes | 8 arquivos `.md` em `agents/` + ACTION-PLAN + ORCHESTRATOR atualizado | `tsc --noEmit` ok; `eslint` ok; `ai:eval` 50/50 ok — arquivos `.md` não afetam build | Próxima: executar Fase A (D9 — contratos data.ts) |
 | 31/10/2026 | **D9-D12 (infra completa) — execução do ACTION-PLAN fases A-D:** D9 `src/contracts/data.ts` (13 schemas Zod: profiles, lesson_progress, attempts, xp_events, review_cards, content_revisions, localized_content, questions/options/answer_keys, review_decisions, ai_runs/usage_events, sync payload, submit attempt) + 22 testes; D10 `lessonStatusSchema` estendido (demo-unreviewed/in_review/approved/published/withdrawn) + teste content atualizado; D11 `supabase/migrations/0001_init.sql` (todas as tabelas + RLS + trigger completed_at + índices) + `supabase/config.toml` + `.env.example` com SUPABASE_*/NEXT_PUBLIC_*; D12 `src/auth/` (config público, server-config server-only, server client, browser client, middleware, useSession hook), `middleware.ts` raiz, rota `/login` com magic link + `login-form.tsx` (useActionState), server actions `src/app/actions/auth.ts` (signInWithMagicLink/signOut) + `src/app/actions/progress.ts` (saveRemoteProgress, syncLocalState, loadRemoteProgress, submitAttempt com gabarito no servidor + xp_events idempotente, getRemoteXp), `src/data/remote-progress.ts` (createRemoteProgressStore, syncLocalToRemote, hydrateRemoteStore), `learning-shell.tsx` com botões sign-in/sign-out, `learning-app.tsx` com useSession + sync no primeiro login, mensagens i18n signIn/signOut/syncedAccount, teste boundaries ajustado para não seguir 'use server' nos client graphs, `tests/auth-config.test.ts` (3 testes) | 173 testes Vitest (12 arquivos) — todos verdes; rotas `/`, `/app`, `/login` no build | `tsc --noEmit` ok; `eslint src content tests` ok; `vitest` 173/173 ok; `next build` ok (3 rotas); `ai:eval` 50/50 ok | D12 pendente de teste real contra emulador Supabase (`npx supabase start` + E2E com 2 usuários). D8 aguardando humano. D5/D6 desbloqueáveis após D12 testado |
+| 31/10/2026 | **Commit `c8882ad` (Orquestrador multiagente IA + /create + 3ª lição + FSRS)**: Implementação do sistema de agentes especializados em `src/ai/agents/` (orchestrator, tutor, planner, question-gen, fact-checker), ferramentas em `tools.ts`, sessions em `session.ts`, prompts modulares em `src/ai/prompts/agents/`, server actions em `src/app/actions/agents.ts`, UI de geração de plano e chat multiagente em `src/features/create/create-page.tsx`, 3ª lição bilíngue `content/cardiac-output-formula.ts`, scheduler FSRS server-side (`src/ai/fsrs-scheduler.ts`), server actions de revisão (`src/app/actions/review.ts`), fila de revisão (`src/features/review/review-queue.tsx`), suíte de testes `tests/ai/agents.test.ts` (10 testes) | 83 arquivos sincronizados no Git | `tsc --noEmit` ok; `eslint` ok; `vitest` 195 testes ok (14 suites); `ai:eval` 60/60 ok; `next build` ok | Base multiagente e curricular expandida |
+| 01/11/2026 | **D14 (Expansão do Catálogo do Ciclo Básico para 30 lições bilíngues em 21 seções)**: 27 novos arquivos de lições em `content/` cobrindo Fisiologia, Histologia, Bioquímica, Citologia, Anatomia, Respiratório, Renal, Neurofisiologia, Patologia, Endócrino, Embriologia, Genética, Imunologia, Microbiologia, Digestório, Músculo, Farmacologia, Epidemiologia, Parasitologia, Biofísica e Neuroanatomia. 30 diagramas SVG semânticos em `lesson-diagram.tsx`. Contrato de integridade curricular `catalogSchema` e `courseSectionSchema` em `src/contracts/learning.ts`. Suporte a 3 tipos de questão: `multiple-choice`, `fill` e `order`. Navegação por seções em `learning-app.tsx` e `learning-shell.tsx`. Testes atualizados (`tests/content-catalog.test.ts`, `tests/learning.spec.ts`, `tests/accessibility.spec.ts`, `tests/landing.spec.ts`). Lembrete de higiene: `preview/` e `wondering-probe*.mjs` mantidos fora do stage. | Working tree pronta para commit limpo | `tsc --noEmit` ok; `eslint` ok; `vitest` 195/195 ok; `ai:eval` 60/60 ok; `next build` ok (5 rotas: `/`, `/_not-found`, `/admin/review`, `/app`, `/login`) | Commit D14 aguarda autorização do usuário e exclusão dos arquivos temporários |

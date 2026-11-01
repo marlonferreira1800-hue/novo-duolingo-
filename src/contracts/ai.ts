@@ -128,8 +128,98 @@ export interface TutorDraft {
 // ============================================================
 
 export const agentIdSchema = z.string().min(1).max(40).regex(/^[a-z0-9-]+$/);
-export const agentToolSchema = z.enum(['search_evidence', 'get_lesson', 'compute_example']);
-export const agentRoleSchema = z.enum(['orchestrator', 'planner', 'tutor', 'question-generator', 'fact-checker']);
+export const agentToolSchema = z.enum([
+  'search_evidence',
+  'get_lesson',
+  'compute_example',
+  'recall_memory',
+  'consolidate_memory',
+]);
+export const agentRoleSchema = z.enum([
+  'orchestrator',
+  'planner',
+  'memory-curator',
+  'tutor',
+  'question-generator',
+  'fact-checker',
+]);
+
+// ============================================================
+// 3-Tier Cognitive Memory Contracts (Episodic, Semantic, Procedural)
+// ============================================================
+
+export const episodicMemoryEntrySchema = z.strictObject({
+  id: z.string().min(1).max(80),
+  role: agentRoleSchema,
+  summary: z.string().min(1).max(300),
+  salience: z.number().min(0).max(1),
+  conceptIds: z.array(slug).max(6),
+  createdAt: z.string(),
+});
+export type EpisodicMemoryEntry = z.infer<typeof episodicMemoryEntrySchema>;
+
+export const semanticConceptNodeSchema = z.strictObject({
+  conceptId: slug,
+  lessonId: slug,
+  masteryScore: z.number().min(0).max(1),
+  misconceptionsCount: z.number().int().nonnegative().max(1000),
+  evidenceKeys: z.array(evidenceKeySchema).min(1).max(4),
+  updatedAt: z.string(),
+});
+export type SemanticConceptNode = z.infer<typeof semanticConceptNodeSchema>;
+
+export const proceduralRetentionEntrySchema = z.strictObject({
+  questionId: slug,
+  lessonId: slug,
+  stability: z.number().positive(),
+  difficulty: z.number().min(1).max(10),
+  retrievability: z.number().min(0).max(1),
+  recommendedAction: z.enum(['review-now', 'reinforce-concept', 'advance']),
+  dueAt: z.string(),
+});
+export type ProceduralRetentionEntry = z.infer<typeof proceduralRetentionEntrySchema>;
+
+export const cognitiveMemorySnapshotSchema = z.strictObject({
+  sessionId: z.string().uuid(),
+  episodic: z.array(episodicMemoryEntrySchema).max(20),
+  semantic: z.array(semanticConceptNodeSchema).max(30),
+  procedural: z.array(proceduralRetentionEntrySchema).max(30),
+  consolidatedCount: z.number().int().nonnegative(),
+});
+export type CognitiveMemorySnapshot = z.infer<typeof cognitiveMemorySnapshotSchema>;
+
+// ============================================================
+// Autonomous GitOps Agent Contracts
+// ============================================================
+
+export const agentDomainOwnerSchema = z.enum([
+  'coordinator',
+  'ai-engineer',
+  'content-medico',
+  'ui-ux',
+  'learning',
+  'dados',
+  'qa',
+]);
+export type AgentDomainOwner = z.infer<typeof agentDomainOwnerSchema>;
+
+export const gitCommitGroupSchema = z.strictObject({
+  id: slug,
+  owner: agentDomainOwnerSchema,
+  commitMessage: z.string().min(10).max(120),
+  files: z.array(z.string().min(1).max(260)).min(1).max(100),
+  order: z.number().int().min(1).max(20),
+});
+export type GitCommitGroup = z.infer<typeof gitCommitGroupSchema>;
+
+export const gitAuditResultSchema = z.strictObject({
+  safe: z.boolean(),
+  blockedFiles: z.array(z.string()),
+  secretFindings: z.array(z.string()),
+  invariantViolations: z.array(z.string()),
+  commitGroups: z.array(gitCommitGroupSchema),
+});
+export type GitAuditResult = z.infer<typeof gitAuditResultSchema>;
 
 export const agentMessageSchema = z.strictObject({
   role: agentRoleSchema,
@@ -200,6 +290,7 @@ export interface AgentRunRecord {
   steps: number;
   handoffs: AgentHandoff[];
   toolCalls: number;
+  memoryOps?: number;
   outcome: 'draft-created' | 'failed';
   errorCode?: AiErrorCode;
   elapsedMs: number;
@@ -212,6 +303,7 @@ export interface OrchestratorDraft {
   medicallyReviewed: false;
   sessionId: string;
   content: OrchestratorOutput;
+  memorySnapshot?: CognitiveMemorySnapshot;
   provenance: {
     runId: string;
     createdAt: string;
