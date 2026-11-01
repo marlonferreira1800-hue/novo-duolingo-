@@ -1,4 +1,4 @@
-import { learningStateSchema, lessonProgressSchema, type LearningState, type ProgressStore } from '@/contracts/learning';
+import { customProjectSchema, learningStateSchema, lessonProgressSchema, type CustomProject, type LearningState, type ProgressStore } from '@/contracts/learning';
 import { initialLearningState, updateProgress } from '@/features/learning/progress';
 
 export const STORAGE_KEY = 'medora.learning.v1';
@@ -47,9 +47,21 @@ export function createLocalProgressStore(storage: () => KeyValueStorage | null, 
     for (const [key, remoteProgress] of Object.entries(remote?.lessons ?? {})) {
       if (remoteProgress.completedAt && !lessons[key]?.completedAt) lessons[key] = remoteProgress;
     }
-    return { ...state, lessons };
+    const completedChallenges = { ...remote?.completedChallenges, ...state.completedChallenges };
+    const existingProjects = state.customProjects ?? remote?.customProjects;
+    return {
+      ...state,
+      lessons,
+      ...(existingProjects ? { customProjects: existingProjects } : {}),
+      ...(Object.keys(completedChallenges).length > 0 ? { completedChallenges } : {}),
+    };
   }
-  const store: ProgressStore & { getPersistenceStatus(): PersistenceStatus } = {
+  const store: ProgressStore & {
+    getPersistenceStatus(): PersistenceStatus;
+    saveCustomProject(project: CustomProject): void;
+    setActiveProject(projectId: string | null): void;
+    completeChallenge(challengeKey: string, completedAt?: string): void;
+  } = {
     getSnapshot: () => { initialize(); return state; },
     subscribe: (listener) => { initialize(); listeners.add(listener); return () => { listeners.delete(listener); }; },
     setLocales: (uiLocale, studyLocale) => { initialize(); persist({ ...mergeSavedProgress(), uiLocale, studyLocale }); },
@@ -59,6 +71,34 @@ export function createLocalProgressStore(storage: () => KeyValueStorage | null, 
       if (!parsed.success) return;
       // Every write, including locale changes, preserves already saved completions.
       persist(updateProgress(mergeSavedProgress(), lesson, parsed.data));
+    },
+    saveCustomProject: (project) => {
+      initialize();
+      const parsed = customProjectSchema.safeParse(project);
+      if (!parsed.success) return;
+      const merged = mergeSavedProgress();
+      const existing = (merged.customProjects ?? []).filter((item) => item.id !== parsed.data.id);
+      persist({
+        ...merged,
+        customProjects: [parsed.data, ...existing].slice(0, 12),
+        activeProjectId: parsed.data.id,
+      });
+    },
+    setActiveProject: (projectId) => {
+      initialize();
+      const merged = mergeSavedProgress();
+      persist({ ...merged, activeProjectId: projectId });
+    },
+    completeChallenge: (challengeKey, completedAt = new Date().toISOString()) => {
+      initialize();
+      if (!challengeKey) return;
+      const merged = mergeSavedProgress();
+      const existing = merged.completedChallenges ?? {};
+      if (existing[challengeKey]) return;
+      persist({
+        ...merged,
+        completedChallenges: { ...existing, [challengeKey]: completedAt },
+      });
     },
     getPersistenceStatus: () => status,
   };

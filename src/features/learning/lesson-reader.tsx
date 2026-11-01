@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, BookOpen, Check, CircleCheck, Lightbulb, RotateCcw, Star, X } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, BookOpen, Bot, Check, CircleCheck, Lightbulb, RotateCcw, Star, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Lesson, LessonProgress, LearningState, Locale } from '@/contracts/learning';
 import { questionItems, questionOptions } from '@/contracts/learning';
@@ -9,6 +9,7 @@ import { LanguageControls } from '@/features/shell/learning-shell';
 import { messages } from '@/i18n/messages';
 import { completeLesson, recordAnswer, recordOrder } from './progress';
 import { LessonDiagram } from './lesson-diagram';
+import { TutorDrawer } from './tutor-drawer';
 
 type Phase = 'content' | 'quiz' | 'result';
 export function LessonReader({ lesson, progress, state, onSave, onExit, onLocales, reviewOnly = false }: {
@@ -23,6 +24,7 @@ export function LessonReader({ lesson, progress, state, onSave, onExit, onLocale
   const [stage, setStage] = useState(progress.stage);
   const [atHook, setAtHook] = useState(phase === 'content' && progress.stage === 0 && !progress.selectedOptionId && !progress.orderedIds);
   const [selected, setSelected] = useState<string | null>(reviewOnly ? null : progress.selectedOptionId);
+  const [tutorOpen, setTutorOpen] = useState(false);
   const [orderIds, setOrderIds] = useState<string[]>(() => {
     const items = questionItems(question);
     if (!items) return [];
@@ -84,8 +86,25 @@ export function LessonReader({ lesson, progress, state, onSave, onExit, onLocale
   const correctItems = questionItems(question)?.slice().sort((a, b) => correctOrder.indexOf(a.id) - correctOrder.indexOf(b.id)) ?? [];
   return <div className="reader">
     <a className="skip-link" href="#reader-main">{t('skipToContent')}</a>
-    <header className="reader-header"><button className="icon-button" aria-label={t('exit')} onClick={onExit}><X size={23} aria-hidden="true"/></button><div className="step-dots" role="progressbar" aria-label={t('lessonProgress')} aria-valuemin={0} aria-valuemax={6} aria-valuenow={stepIndex + 1}>{[0, 1, 2, 3, 4, 5].map((index) => <span key={index} aria-hidden="true" className={index === stepIndex ? 'current' : index < stepIndex ? 'done' : ''}/>)}</div><span className="reader-xp"><Star size={15} aria-hidden="true"/> {lesson.xp} XP</span></header>
+    <header className="reader-header">
+      <button className="icon-button" aria-label={t('exit')} onClick={onExit}><X size={23} aria-hidden="true"/></button>
+      <div className="step-dots" role="progressbar" aria-label={t('lessonProgress')} aria-valuemin={0} aria-valuemax={6} aria-valuenow={stepIndex + 1}>{[0, 1, 2, 3, 4, 5].map((index) => <span key={index} aria-hidden="true" className={index === stepIndex ? 'current' : index < stepIndex ? 'done' : ''}/>)}</div>
+      <div className="reader-header-right">
+        <button type="button" className="reader-tutor-btn" data-testid="open-tutor" onClick={() => setTutorOpen((v) => !v)}>
+          <Bot size={15} aria-hidden="true"/>
+          <span>{t('askTutor')}</span>
+        </button>
+        <span className="reader-xp"><Star size={15} aria-hidden="true"/> {lesson.xp} XP</span>
+      </div>
+    </header>
     <div className="reader-languages"><LanguageControls state={state} onChange={onLocales}/></div>
+    <TutorDrawer
+      open={tutorOpen}
+      onClose={() => setTutorOpen(false)}
+      studyLocale={state.studyLocale}
+      lessonId={lesson.id}
+      lessonTitle={content.title}
+    />
     <main className="reader-body" id="reader-main" tabIndex={-1}>
       <div className="reader-kicker"><span>{t(reviewOnly ? 'reviewMode' : 'foundational')}</span><span>{t('step', { current: stepIndex + 1, total: 6 })}</span></div>
       {phase === 'content' && atHook && <section lang={state.studyLocale} className="hook-screen"><h1 className="lesson-hook hook-hero" ref={headingRef} tabIndex={-1}>{content.hook}</h1><p className="hook-lesson-title">{content.title}</p></section>}
@@ -101,7 +120,7 @@ export function LessonReader({ lesson, progress, state, onSave, onExit, onLocale
           <legend>{question.prompt}</legend>
           {question.type === 'fill' && <p className="fill-blank" aria-hidden="true">{question.blank}</p>}
           <p className="quiz-instruction">{question.type === 'fill' ? d.fillInstruction : d.questionLabel}</p>
-          {questionOptions(question)?.map((answer, index) => <label key={answer.id} className={`answer-option ${selected === answer.id ? 'selected' : ''} ${submitted && selected === answer.id ? correct ? 'answer-correct' : 'answer-incorrect' : ''}`}><input type="radio" name={`${lesson.id}-answer`} value={answer.id} checked={selected === answer.id} onChange={() => select(answer.id)}/><span className="answer-letter" aria-hidden="true">{String.fromCharCode(65 + index)}</span><span>{answer.label}</span>{selected === answer.id && <Check size={18} aria-hidden="true"/>}</label>)}
+          {questionOptions(question)?.map((answer, index) => <label key={answer.id} className={`answer-option ${selected === answer.id ? 'selected' : ''} ${submitted && selected === answer.id ? correct ? 'answer-correct' : 'answer-incorrect' : ''}`}><input type="radio" name={`${lesson.id}-answer`} value={answer.id} onChange={() => select(answer.id)} checked={selected === answer.id}/><span className="answer-letter" aria-hidden="true">{String.fromCharCode(65 + index)}</span><span>{answer.label}</span>{selected === answer.id && <Check size={18} aria-hidden="true"/>}</label>)}
         </fieldset>
         {submitted && option && <div ref={feedbackRef} tabIndex={-1} className={`answer-feedback ${correct ? 'correct-feedback' : 'incorrect-feedback'}`} role="status"><strong>{t(correct ? 'correct' : 'incorrect')}</strong><p lang={state.studyLocale}>{option.explanation}</p></div>}
       </section>}

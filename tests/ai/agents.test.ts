@@ -20,6 +20,7 @@ import {
 import { createAiRuntime } from '../../src/ai/runtime';
 import { AiRunError } from '../../src/ai/errors';
 import { lessons } from '../../content';
+import { generateProjectLessonsAction } from '../../src/app/actions/agents';
 
 const sourceKey = evidenceKey(cardiovascularEvidence);
 
@@ -172,7 +173,16 @@ describe('agent tools (audited, no external access)', () => {
 });
 
 it('live agent mode fails closed without approval', () => {
-  expect(() => createAiRuntime({ mode: 'live' })).toThrow(AiRunError);
+  const prevEnabled = process.env.AI_LIVE_ENABLED;
+  const prevKey = process.env.AI_API_KEY;
+  delete process.env.AI_LIVE_ENABLED;
+  delete process.env.AI_API_KEY;
+  try {
+    expect(() => createAiRuntime({ mode: 'live' })).toThrow(AiRunError);
+  } finally {
+    if (prevEnabled !== undefined) process.env.AI_LIVE_ENABLED = prevEnabled;
+    if (prevKey !== undefined) process.env.AI_API_KEY = prevKey;
+  }
 });
 
 describe('3-tier cognitive memory curator & engine', () => {
@@ -265,5 +275,30 @@ describe('autonomous GitOps agent planner & security gate', () => {
     expect(leaked.safe).toBe(false);
     expect(leaked.secretFindings.length).toBeGreaterThan(0);
     expect(leaked.invariantViolations).toContain('ai-output-cannot-claim-medically-reviewed');
+  });
+});
+
+describe('custom project interactive lesson generator', () => {
+  it('generates 2 fully playable lessons conforming strictly to lessonSchema', async () => {
+    const res = await generateProjectLessonsAction({
+      projectId: 'proj-neuro-1',
+      projectTitle: 'Neurofisiologia do Potencial de Ação',
+      goal: 'Potencial de ação neuronal e canais iônicos',
+      summary: 'Estudo do potencial de membrana e canais de sódio e potássio.',
+      body: 'O potencial de ação é disparado pela abertura de canais de sódio voltagem-dependentes.',
+      evidenceKeys: [sourceKey],
+      sectionId: 'neuroanatomy',
+      studyLocale: 'pt-BR',
+    });
+
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.lessons.length).toBe(2);
+    expect(res.lessons[0].id).toBe('proj-neuro-1-1');
+    expect(res.lessons[0].translations['pt-BR'].stages.length).toBe(3);
+    expect(res.lessons[0].translations['pt-BR'].stages[0].diagram).toBe('neuron');
+    expect(res.lessons[0].translations['en'].stages[0].diagram).toBe('neuron');
+    expect(res.lessons[0].translations['pt-BR'].question.type).toBe('multiple-choice');
+    expect(res.lessons[0].status).toBe('demo-unreviewed');
   });
 });

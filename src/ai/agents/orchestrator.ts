@@ -19,10 +19,16 @@ const limitsSchema = z.strictObject({
   maxInputBytes: z.number().int().min(256).max(64000).default(32000),
   maxOutputBytes: z.number().int().min(256).max(32000).default(16000),
   maxOutputTokens: z.number().int().min(64).max(4000).default(2000),
-  timeoutMs: z.number().int().min(1).max(60000).default(30000),
+  timeoutMs: z.number().int().min(1).max(120000).default(60000),
   maxConcurrent: z.number().int().min(1).max(4).default(1),
 });
 type Limits = z.infer<typeof limitsSchema>;
+
+function safeJsonParse(raw: string): unknown {
+  const trimmed = raw.trim();
+  const unwrapped = trimmed.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+  return JSON.parse(unwrapped);
+}
 
 export function createAgentOrchestrator(options: {
   provider: DraftProvider;
@@ -100,10 +106,64 @@ export function createAgentOrchestrator(options: {
           catch { throw new AiRunError('INVALID_OUTPUT'); }
           if (Buffer.byteLength(text, 'utf8') > limits.maxOutputBytes) throw new AiRunError('INVALID_OUTPUT');
           let value: unknown;
-          try { value = JSON.parse(text); } catch { throw new AiRunError('INVALID_OUTPUT'); }
+          try { value = safeJsonParse(text); } catch { throw new AiRunError('INVALID_OUTPUT'); }
 
           // Se for o orquestrador final, valida o output completo
-          if (currentAgent.id === 'orchestrator' && steps >= maxSteps) {
+          if (currentAgent.id === 'orchestrator') {
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+              const rec = value as Record<string, unknown>;
+              if (rec.toolCalls === null || !Array.isArray(rec.toolCalls)) delete rec.toolCalls;
+              if (!rec.locale) rec.locale = request.studyLocale;
+              if (typeof rec.summary !== 'string' || !rec.summary) {
+                rec.summary = 'Rascunho de plano de estudos sintetizado pelos agentes de estudo.';
+              } else if (rec.summary.length > 1000) {
+                rec.summary = rec.summary.slice(0, 1000);
+              }
+              if (rec.draft && typeof rec.draft === 'object') {
+                const draftRec = rec.draft as Record<string, unknown>;
+                if (typeof draftRec.title === 'string' && draftRec.title.length > 160) {
+                  draftRec.title = draftRec.title.slice(0, 160);
+                }
+                if (typeof draftRec.body === 'string' && draftRec.body.length > 4000) {
+                  draftRec.body = draftRec.body.slice(0, 4000);
+                }
+              }
+              if (provider.kind === 'live' && trace.length > 0) {
+                rec.agentTrace = trace.map(t => ({
+                  agentId: t.agentId,
+                  role: t.role,
+                  action: t.action.slice(0, 300),
+                  ...(t.handoffTo ? { handoffTo: t.handoffTo } : {})
+                }));
+              } else if (!Array.isArray(rec.agentTrace) || rec.agentTrace.length === 0) {
+                rec.agentTrace = trace.length > 0
+                  ? trace.map(t => ({
+                      agentId: t.agentId,
+                      role: t.role,
+                      action: t.action.slice(0, 300),
+                      ...(t.handoffTo ? { handoffTo: t.handoffTo } : {})
+                    }))
+                  : [{ agentId: 'planner', role: 'planner' as const, action: 'Planejamento sintetizado' }];
+              } else if (Array.isArray(rec.agentTrace)) {
+                for (const item of rec.agentTrace) {
+                  if (item && typeof item === 'object') {
+                    const itemRec = item as Record<string, unknown>;
+                    if (itemRec.handoffTo === null) delete itemRec.handoffTo;
+                    if (typeof itemRec.action === 'string' && itemRec.action.length > 300) {
+                      itemRec.action = itemRec.action.slice(0, 300);
+                    }
+                  }
+                }
+              }
+              const sanitizedOut: Record<string, unknown> = {
+                locale: rec.locale,
+                summary: rec.summary,
+                agentTrace: rec.agentTrace,
+                draft: rec.draft,
+              };
+              if (rec.toolCalls) sanitizedOut.toolCalls = rec.toolCalls;
+              value = sanitizedOut;
+            }
             const out = orchestratorOutputSchema.safeParse(value);
             if (!out.success) throw new AiRunError('INVALID_OUTPUT');
             if (out.data.locale !== request.studyLocale) throw new AiRunError('LOCALE_MISMATCH');
@@ -122,6 +182,28 @@ export function createAgentOrchestrator(options: {
           }
 
           // Sub-agente: parseia handoff
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            const rec = value as Record<string, unknown>;
+            if (typeof rec.action === 'string' && rec.action.length > 300) {
+              rec.action = rec.action.slice(0, 300);
+            }
+            if (typeof rec.action !== 'string' || !rec.action) {
+              rec.action = 'Progresso de aprendizado estruturado pelos agentes.';
+            }
+            for (const optKey of ['handoffTo', 'tool', 'toolInput'] as const) {
+              if (rec[optKey] === null) delete rec[optKey];
+            }
+            if (rec.toolInput && typeof rec.toolInput !== 'object') {
+              rec.toolInput = { query: String(rec.toolInput) };
+            }
+            const sanitizedStep: Record<string, unknown> = {
+              action: rec.action,
+            };
+            if (typeof rec.handoffTo === 'string') sanitizedStep.handoffTo = rec.handoffTo;
+            if (typeof rec.tool === 'string') sanitizedStep.tool = rec.tool;
+            if (rec.toolInput && typeof rec.toolInput === 'object') sanitizedStep.toolInput = rec.toolInput;
+            value = sanitizedStep;
+          }
           const step = z.strictObject({
             action: z.string().min(1).max(300),
             handoffTo: z.string().optional(),
@@ -168,7 +250,62 @@ export function createAgentOrchestrator(options: {
           signal: controller.signal,
         });
         const text = typeof response.output === 'string' ? response.output : JSON.stringify(response.output);
-        const value = JSON.parse(text);
+        let value: unknown;
+        try { value = safeJsonParse(text); } catch { throw new AiRunError('INVALID_OUTPUT'); }
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          const rec = value as Record<string, unknown>;
+          if (rec.toolCalls === null || !Array.isArray(rec.toolCalls)) delete rec.toolCalls;
+          if (!rec.locale) rec.locale = request.studyLocale;
+          if (typeof rec.summary !== 'string' || !rec.summary) {
+            rec.summary = 'Rascunho de plano de estudos sintetizado pelos agentes de estudo.';
+          } else if (rec.summary.length > 1000) {
+            rec.summary = rec.summary.slice(0, 1000);
+          }
+          if (rec.draft && typeof rec.draft === 'object') {
+            const draftRec = rec.draft as Record<string, unknown>;
+            if (typeof draftRec.title === 'string' && draftRec.title.length > 160) {
+              draftRec.title = draftRec.title.slice(0, 160);
+            }
+            if (typeof draftRec.body === 'string' && draftRec.body.length > 4000) {
+              draftRec.body = draftRec.body.slice(0, 4000);
+            }
+          }
+          if (provider.kind === 'live' && trace.length > 0) {
+            rec.agentTrace = trace.map(t => ({
+              agentId: t.agentId,
+              role: t.role,
+              action: t.action.slice(0, 300),
+              ...(t.handoffTo ? { handoffTo: t.handoffTo } : {})
+            }));
+          } else if (!Array.isArray(rec.agentTrace) || rec.agentTrace.length === 0) {
+            rec.agentTrace = trace.length > 0
+              ? trace.map(t => ({
+                  agentId: t.agentId,
+                  role: t.role,
+                  action: t.action.slice(0, 300),
+                  ...(t.handoffTo ? { handoffTo: t.handoffTo } : {})
+                }))
+              : [{ agentId: 'planner', role: 'planner' as const, action: 'Planejamento sintetizado' }];
+          } else if (Array.isArray(rec.agentTrace)) {
+            for (const item of rec.agentTrace) {
+              if (item && typeof item === 'object') {
+                const itemRec = item as Record<string, unknown>;
+                if (itemRec.handoffTo === null) delete itemRec.handoffTo;
+                if (typeof itemRec.action === 'string' && itemRec.action.length > 300) {
+                  itemRec.action = itemRec.action.slice(0, 300);
+                }
+              }
+            }
+          }
+          const sanitizedOut: Record<string, unknown> = {
+            locale: rec.locale,
+            summary: rec.summary,
+            agentTrace: rec.agentTrace,
+            draft: rec.draft,
+          };
+          if (rec.toolCalls) sanitizedOut.toolCalls = rec.toolCalls;
+          value = sanitizedOut;
+        }
         const out = orchestratorOutputSchema.safeParse(value);
         if (!out.success) throw new AiRunError('INVALID_OUTPUT');
         if (out.data.locale !== request.studyLocale) throw new AiRunError('LOCALE_MISMATCH');

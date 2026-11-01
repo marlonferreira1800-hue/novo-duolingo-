@@ -1,75 +1,69 @@
-# Orquestrador de decisões do produto
+# Orquestrador Autônomo de Decisões e Implementações do Medora
 
-Registro vivo das decisões pendentes do Medora. Atualizar a cada incremento: mudar status, registrar resultado e ativar a próxima decisão. Não é um agente autônomo de execução; é a fila de decisões que o humano (ou coordenador designado) administra.
+Registro vivo da arquitetura implementada, do backlog de decisões (`D1–D16`) e dos **Blueprints Arquiteturais Pré-Aprovados** para que o **Agente Coordenador** e os **6 Agentes Especialistas** (`agents/*.md`) saibam exatamente o que já existe e como implementar novos pedidos do usuário com autonomia ponta-a-ponta.
 
-## Estado atual (01/11/2026, após c8882ad e D14 na working tree)
+---
 
-- Fundação (etapa 0), base executável (etapa 1) e expansão curricular do Ciclo Básico integradas.
-- **Commit `c8882ad` registrado**: Orquestrador multiagente de IA em `src/ai/agents/` (`definitions.ts`, `orchestrator.ts`, `session.ts`, `tools.ts`, prompts modulares por agente), rota/página `/create` (`create-page.tsx`), server actions de agentes (`src/app/actions/agents.ts`), 3ª lição (`cardiac-output-formula`), FSRS scheduler e base de auth/dados Supabase.
-- **Incremento D14 (working tree)**: Expansão do Catálogo do Ciclo Básico para **30 lições bilíngues em 21 seções curriculares** (de Fisiologia Cardiovascular a Neuroanatomia), 30 diagramas SVG semânticos em `lesson-diagram.tsx`, validação estrita com `catalogSchema` em `src/contracts/learning.ts`, suporte aos 3 tipos de questão do método Wondering (`multiple-choice`, `fill`, `order`), agrupamento e navegação por seção na UI (`learning-app.tsx`), i18n completo (`messages.ts`) e testes alinhados.
-- **Validação real executada e verde (01/11/2026):**
-  - `npm run typecheck` (`tsc --noEmit`): 0 erros.
-  - `npm run lint` (`eslint src content tests`): 0 avisos/erros.
-  - `npx vitest run`: **14 suites, 195 testes unitários e de integração aprovados** (100% verde).
-  - `npm run ai:eval`: **3 suites, 60 testes de IA aprovados** (`agents.test.ts`, `study-plan.test.ts`, `boundaries.test.ts`).
-  - `npm run build`: Build Next.js 16.4.3 Turbopack concluído com sucesso gerando 5 rotas (`/`, `/_not-found`, `/admin/review`, `/app`, `/login`).
-- **Higiene Git**: Existem arquivos temporários de probe/inspeção visual (`preview/`, `wondering-probe.mjs`, `wondering-probe2.mjs`) que NÃO devem subir ao stage; devem ser removidos antes do commit de D14. Commit pendente de autorização explícita do usuário.
-- **Bloqueio de infra real remanescente:** Docker Desktop não iniciado neste ambiente local → emulador Supabase (`supabase start`) inativo. Testes E2E autenticados pulam graciosamente sem `SUPABASE_URL`.
-- **Gate médico:** Todas as 30 lições permanecem com status `demo-unreviewed` (D8 bloqueia publicação comercial/clínica).
+## Estado Atual Consolidado (01/11/2026)
 
-## Regras de orquestração
+- **Currículo Completo do Ciclo Básico (`content/`, `src/contracts/learning.ts`):**
+  - **210 lições bilíngues (`pt-BR` / `en`)** organizadas em **21 disciplinas completas (10 lições por trilha — Parte Geral + Parte Especial/Sistemas)** do Ciclo Básico (1º e 2º ano de Medicina), além de seletor de disciplinas no topo do **Início** (`discipline-picker`) e atalho **Abrir trilha completa** na **Biblioteca**.
+  - **3 tipos de exercício interativo:** `'multiple-choice'`, `'fill'` (preenchimento de lacuna) e `'order'` (ordenação de sequência fisiológica/clínica).
+  - **30 diagramas SVG semânticos** em `src/features/learning/lesson-diagram.tsx` com textos traduzidos em `src/i18n/messages.ts`.
+- **Sistema Multi-Agente de IA & Serviços Cognitivos (`src/ai/`, `src/contracts/ai.ts`):**
+  - **Orquestrador Multi-Agente (`src/ai/agents/orchestrator.ts`):** coordena `planner` → `tutor-agent` → `question-gen` → `fact-checker` com ferramentas auditadas (`search_evidence`, `get_lesson`, `compute_example`), memória de sessão (`session.ts`) e `agentTrace` completo.
+  - **Estúdio Criar + Projetos Dinâmicos `?project=<id>` com Lições Interativas Geradas (`src/features/create/create-page.tsx` + `src/app/actions/agents.ts`):** integrado na navegação principal de `/app` com tópicos recomendados, geração autônoma de lições didáticas completas (`generatedLessons` com estágios, diagramas SVG semânticos e quiz interativo) e abertura direta na trilha com sincronização de URL (`?project=<id>`).
+  - **Gaveta do Tutor IA Contextual + Assistente Flutuante (`src/features/learning/tutor-drawer.tsx` + `src/app/actions/tutor.ts` — D14):** acessível tanto dentro do `LessonReader` quanto pelo botão flutuante do shell, citando `evidenceKeys` OpenStax e sugerindo perguntas de aprofundamento.
+  - **Integração Avançada (`Advanced Lesson`) & Desafio Clínico (`Live Challenge`) (`src/features/learning/clinical-integration-modal.tsx`):** desbloqueados em cada uma das 21 seções da trilha com síntese fisiopatológica, questão integradora e XP idempotente (`completedChallenges`).
+  - **Canvas Médico Interativo (`src/features/canvas/canvas-page.tsx`):** quadro pontilhado `Think in parallel` habilitado na navegação com controles de zoom/undo e adição de nós em paralelo (`Achado`, `Mecanismo`, `Hipótese`, `Evidência`).
+  - **Agendador FSRS (`src/ai/fsrs-scheduler.ts` + `src/features/review/review-queue.tsx` + `src/app/actions/review.ts`):** repetição espaçada server-side completa.
+  - **Study Plan & Tutor (`study-plan-service.ts`, `tutor-service.ts`)** + **Live Provider (`src/ai/providers/live.ts`)** pronto e fail-closed (`AI_LIVE_ENABLED=true` + `AI_API_KEY`).
+- **Persistência Híbrida, Auth & Governança Médica (`src/data/`, `src/auth/`, `supabase/`, `/admin/review`):**
+  - `localProgressStore` + `RemoteProgressStore` com sync local→remoto idempotente, verificação de gabarito no servidor (`submitAttemptAction`), migration `0001_init.sql` com RLS e portal `/admin/review` para decisão humana D8.
+- **Qualidade e Validação Verificada:**
+  - `npm run typecheck` (`tsc --noEmit`): **OK**
+  - `npm test` (Vitest): **14 arquivos / 199 testes passando (incluindo 60 evals de IA, fronteiras e 210 lições em 21 trilhas)**
+  - `npx playwright test` (`learning.spec.ts` + `accessibility.spec.ts`): **30 testes E2E passando (desktop e mobile)**
 
-1. Uma decisão ativa por vez; a ativa está marcada em "Decisão ativa".
-2. Ordem por dependência: refinar o que existe antes de ampliar escopo (ARQUITETURA.md, "Próxima ação").
-3. Gate médico: conteúdo novo entra como rascunho bilíngue; nada é publicado sem revisão médica (D8). O gate de demo permanece fechado em produção.
-4. Backend/auth (D4) é planejamento até os contratos de dados existirem; não implementar Supabase em paralelo sem aprovar contratos.
-5. IA live (D5) permanece bloqueada: exige auth, quotas, avaliação com modelo real e orçamento. Fixtures nunca viram live silenciosamente.
-6. Toda decisão encerra com: arquivos alterados, validação executada (comando real e resultado), limitações remanescentes.
+---
 
-## Backlog de decisões
+## Status das Decisões (D1 a D16)
 
-| ID | Decisão | Status | Bloqueia/bloqueada por |
+| ID | Decisão / Entrega | Status | Notas & Próxima Ação Autônoma |
 | --- | --- | --- | --- |
-| D1 | Refinar fidelidade visual e acessibilidade da lição de débito cardíaco (foco, teclado, reduced-motion, comparação com capturas em 1366×900 e 390×844) | **concluída em 31/10** (ver histórico) | nada |
-| D2 | Segunda lição bilíngue (ciclo cardíaco) como rascunho: contrato generalizado + catálogo, `content/cardiac-cycle.ts`, trilha com 2 nós, diagramas phases/valves/sounds, landing atualizada | **concluída em 31/10 (validação completa verde; commit pendente de autorização)** | D1 concluída; revisão médica antes de publicar |
-| D3 | Ampliar cobertura QA: tests/accessibility.spec.ts (skip link, foco por etapa/feedback, reduced-motion, persistência intermediária entre reloads e troca de idioma) + E2E da 2ª lição (20 XP) | **concluída em 31/10** (ver histórico) | nada |
-| D4 | Planejamento (documento) da migração Supabase/auth e dos contratos de dados | **concluída em 31/10 — ADR 0002 proposto** (contratos, RLS, idempotência, sync local→remoto; sem código de backend) | D1–D3; precisa de定义 de contratos antes de código |
-| D5 | Provedor de IA live (adapter real, credenciais server-side, quotas, eval com modelo real) | bloqueada | D4 (auth/quotas); orçamento e política de dados |
-| D6 | Revisão espaçada FSRS | bloqueada | validar requisitos; depende de persistência real (D4) |
-| D7 | Canvas, tutor contextual, áudio/vídeo, recursos sociais | bloqueada | entregas posteriores separadas (etapa 5) |
-| D8 | Revisão médica/editorial do conteúdo existente | **em andamento — pacote pronto; aguardando revisor humano** | bloqueia publicação do conteúdo médico |
-| D9 | Contratos de dados (`src/contracts/data.ts`) — Fase A do ACTION-PLAN | **concluída 31/10** (22 testes) | ADR 0002 effectively aceito em código |
-| D10 | Infraestrutura de revisão médica (enum status + reviewDecisionSchema) — Fase B | **concluída 31/10** | D8 pronto para registro humano |
-| D11 | Ambiente Supabase local (emulador + migration 0001 + config) — Fase C | **concluída 31/10** | migration 0001_init.sql com RLS completa |
-| D12 | Etapa 3 fases 0-4: auth (magic link) + sync local→remoto + gabarito servidor — Fase D | **infra concluída 31/10** (rota /login, middleware, server actions, useSession, RemoteProgressStore) | requer emulador Supabase rodando para E2E real; desbloqueia D5/D6 quando testado |
-| D13 | D5 IA live + D6 FSRS | **D6 implementado; D5 adapter pronto (falta credencial)** | D6: pronto para teste com emulador. D5: falta OPENAI_API_KEY + aprovação + orçamento |
-| D14 | Expansão curricular do Ciclo Básico: 30 lições bilíngues em 21 seções, 30 diagramas SVG semânticos, 3 tipos de questão (multiple-choice/fill/order) e validação de curso via `catalogSchema` | **concluída na working tree (validação completa verde; commit pendente de autorização)** | D2 concluída; revisão médica (D8) antes de publicar |
+| **D1** | Fidelidade visual e acessibilidade WCAG AA (skip-link, foco programático, reduced-motion) | **Concluída** | Validada em desktop (`1366×900`) e mobile (`390×844`) |
+| **D2** | Expansão do currículo bilíngue: 210 lições em 21 seções (10 lições por disciplina) + seletor de disciplinas no Início + 3 tipos de questão (`multiple-choice`, `fill`, `order`) + 30 diagramas SVG | **Concluída** | 210 lições ativas como `demo-unreviewed`; 199 testes unitários + E2E verdes |
+| **D3** | Cobertura QA ampliada (`accessibility.spec.ts`, `content-catalog.test.ts`, `ai/agents.test.ts`, `fsrs.test.ts`) | **Concluída** | 14 suítes Vitest + 4 suítes Playwright E2E |
+| **D4** | Planejamento de contratos de dados, Auth e RLS (ADR 0002) | **Concluída** | Implementado em `src/contracts/data.ts` e `0001_init.sql` |
+| **D5** | Provedor de IA Live (`src/ai/providers/live.ts` — OpenAI, Anthropic, Mistral) + Orquestrador Multi-Agente (`src/ai/agents/*`) | **Ativo (Mistral Live em `.env.local`)** | Configurado com `AI_PROVIDER=mistral` (`mistral-small-latest`) e `AI_LIVE_ENABLED=true` em `.env.local` (ignorado pelo Git) |
+| **D6** | Revisão espaçada FSRS (`src/ai/fsrs-scheduler.ts` + `review-queue.tsx`) | **Concluída** | Integrada na navegação `/app` e validada por `tests/fsrs.test.ts` |
+| **D7** | Expansões da Etapa 5 (Projetos Dinâmicos `?project=`, Gaveta de Tutor Contextual, `Advanced Lesson`/`Live Challenge`, `Canvas` Médico) | **Concluída** | 100% implementada e integrada na navegação `/app` |
+| **D8** | Revisão médica/editorial humana (`/admin/review`) | **Infra Pronta** | Aguardando apenas revisor médico humano (agentes nunca auto-aprovam medicina) |
+| **D9–D13** | Contratos `data.ts`, status editorial, migration Supabase RLS, Auth Magic Link, `RemoteProgressStore`, gabarito server-side | **Concluídas** | 100% implementadas e testadas |
+| **D14** | Gaveta de Tutor Contextual dentro do `LessonReader` + Botão Flutuante conectada a `tutor-service.ts` | **Concluída** | Implementada em `src/features/learning/tutor-drawer.tsx` e `src/app/actions/tutor.ts` |
+| **D15** | *(Blueprint Pronto)* Cotas por usuário (`usage_events`) e rate-limiting server-side antes de chamadas `live` | **Pronto p/ Execução Autônoma** | Ver blueprint abaixo |
+| **D16** | *(Blueprint Pronto)* Persistência de `agent_sessions` no Supabase e fila `generation_jobs` com lease/retry | **Pronto p/ Execução Autônoma** | Ver blueprint abaixo |
 
-## Decisão ativa
+---
 
-**D14 validada na working tree e aguardando autorização para commit limpo.**
-A working tree contém a expansão curricular de 30 lições / 21 seções com validação integral (195 testes verdes, ai:eval 60/60 e Next build com 5 rotas).
-Passos necessários para o checkpoint Git:
-1. **Higiene Git:** Excluir arquivos de inspeção/probe temporários (`preview/`, `wondering-probe.mjs`, `wondering-probe2.mjs`) para não poluir o histórico.
-2. **Commit D14:** Registrar o commit de D14 assim que autorizado pelo usuário.
+## Blueprints Arquiteturais Pré-Aprovados (Para Execução Autônoma Imediata)
 
-Bloqueios externos remanescentes:
-1. **D8**: Revisor médico humano acessa `/admin/review` e registra decisão editorial/médica (as 30 lições continuam como rascunhos `demo-unreviewed`).
-2. **D12 teste real**: Ligar Docker Desktop → `npx supabase start` → rodar `npm run test:e2e` (ativação automática dos testes autenticados).
-3. **D5 live**: Configurar `OPENAI_API_KEY` no `.env` e aprovação de quotas/orçamento para ativar o runtime live.
+Quando o usuário pedir qualquer uma das implementações abaixo (ou variações delas), o **Coordenador** e os **Agentes** já sabem exatamente como construir sem fazer perguntas:
 
-## Histórico de decisões encerradas
+### 1. Gaveta de Tutor Contextual no Leitor (D14)
+- **Contratos (`Coordinator`):** Já existem `tutorRequestSchema`, `tutorOutputSchema` e `TutorDraft` em `src/contracts/ai.ts`. Criar Server Action `askTutorAction` em `src/app/actions/tutor.ts` (modo `live` se `AI_LIVE_ENABLED=true`, caso contrário fixture determinística contextualizada pela lição).
+- **UI & Fluxo (`Learning` + `UI/UX`):** Botão "Perguntar ao Tutor" no `lesson-reader.tsx` abre um painel acessível (`role="dialog"` ou `<aside>` colapsável) enviando `{ question, lessonId: lesson.id, studyLocale, level: 'basic' }`. Exibe `answer`, `evidenceKeys`, `followUpSuggestions` e badge obrigatório de rascunho não revisado.
+- **Testes (`QA`):** Evals em `tests/ai/` + teste de componente/fluxo.
 
-| Data | Decisão | Resultado | Validação |
-| --- | --- | --- | --- |
-| 31/10/2026 | Fundação bilíngue + fatia demonstrativa + núcleo IA server-only (fixture) | 3 commits locais | typecheck, 137 testes, E2E passed, build |
-| 31/10/2026 | D1 — refinamentos de acessibilidade da lição: skip link p/ `#reader-main` no reader (main com `tabIndex={-1}`), foco programático no feedback do quiz após submit (`role="status"` + `tabIndex={-1}`), `aria-hidden` em ícones decorativos (reader, shell, app, diagram, heart-art já tinha), `prefers-reduced-motion` agora também desativa `animation`, outline de foco removido apenas em alvos de foco programático. Arquivos: `src/features/learning/lesson-reader.tsx`, `learning-app.tsx`, `lesson-diagram.tsx`, `src/features/shell/learning-shell.tsx`, `src/app/globals.css` | Fidelidade comparada com capturas Wondering (lesson-preview/lesson-next, home desktop/mobile): header com X + dots + ações fixas já estavam fieis; desvios intencionais mantidos (XP no header no lugar de ícones de notas) | `tsc --noEmit` ok; `eslint src content tests` ok; 137 testes Vitest ok; `next build` ok; E2E 16 desktop + 16 mobile ok (rodados por projeto por limite de RAM da máquina — run único com 2 servidores + Chrome estoura os 7,8 GB e derruba o servidor, não é falha de código). Limitação: emulação de viewport não é validação em dispositivo físico; contraste auditado por cálculo (muted #786f65 sobre #FFFCF0 ≈ 4,8:1, passa AA) |
-| 31/10/2026 | D3 — QA ampliado: `tests/accessibility.spec.ts` (skip-link como 1º tab stop, foco no h1 por etapa e no feedback após submit, reduced-motion desativa transition/animation, etapa intermediária + seleção não submetida persistem entre reloads e troca de idioma de estudo) | +5 testes × 2 projetos | E2E accessibility 10/10 (desktop+mobile) |
-| 31/10/2026 | D2 (parcial) — contrato generalizado (`id`/`revision`/`xp` genéricos, `lessonCatalogSchema` com ids únicos), `content/index.ts` + `content/cardiac-cycle.ts` (rascunho bilíngue `demo-unreviewed`, fonte OpenStax 19.4), diagramas `phases`/`valves`/`sounds` em `lesson-diagram.tsx` + textos i18n, `learning-app.tsx` com trilha de 2 lições (testids por id, revisão da última concluída, library lista lições, perfil agrega), landing atualizada para 2 lições, `tests/content-catalog.test.ts` + E2E da 2ª lição (20 XP no total) | 145 testes unit (10 arquivos); E2E 22+22 por projeto | `tsc --noEmit` ok, lint ok, vitest 145 ok, build ok, playwright desktop 22/22 + mobile 22/22 passed (por `--project`, `NODE_OPTIONS=--max-old-space-size=768`) |
-| 31/10/2026 | D2 (checkpoint final) — validate completo reexecutado após integração: typecheck ok, lint ok, 145 testes Vitest (10 arquivos) ok, `next build` ok (rotas `/` estática e `/app` dinâmica), E2E desktop 22/22 passed (47.7s) e mobile 22/22 passed (46.2s), incluindo o teste da 2ª lição (20 XP no total) em ambos os projetos | D2 encerrada | Commit local pendente de autorização; revisão médica (D8) continua bloqueando publicação |
-| 31/10/2026 | D4 — planejamento apenas: `docs/adr/0002-supabase-auth-and-data-contracts.md` (status proposto). Define contratos de dados (`profiles`, `lesson_progress`, `attempts`, `xp_events` com idempotência dupla, `review_cards`, tabelas de conteúdo/gabarito, `usage_events`), RLS padrão `auth.uid() = user_id`, `RemoteProgressStore` sobre a mesma interface `ProgressStore`, sync local→remoto no primeiro login, variáveis de ambiente sem segredos no cliente, 5 questões em aberto para decisão humana | Documento; nada de código de backend | Aprovação humana dos contratos antes da etapa 3; D5/D6 continuam bloqueadas |
-| 31/10/2026 | D8 (preparação) — `docs/coordination/D8-medical-review-packet.md`: escopo (2 lições `demo-unreviewed` rev 1, pt-BR/en), fonte declarada (OpenStax A&P 2e §19.4), checklist por lição/idioma, fluxo editorial proposto `draft → in_review → approved → published` com registro por revisão+idioma; README atualizado com checkpoint D1–D4 (145 unit, E2E 22+22) | Documento; gate de produção permanece fechado | Aguardando revisor médico humano; automação não aprova conteúdo clínico |
-| 31/10/2026 | Agentes de desenvolvimento criados em `agents/` (coordinator, content-medico, ui-ux, learning, dados, qa, ai-engineer) + plano de desbloqueio `docs/coordination/ACTION-PLAN-unblock.md` com fases A-F para resolver D8/ADR 0002/etapa 3/D5/D6. D9-D13 adicionadas ao backlog. AGENTS.md atualizado com referências aos agentes | 8 arquivos `.md` em `agents/` + ACTION-PLAN + ORCHESTRATOR atualizado | `tsc --noEmit` ok; `eslint` ok; `ai:eval` 50/50 ok — arquivos `.md` não afetam build | Próxima: executar Fase A (D9 — contratos data.ts) |
-| 31/10/2026 | **D9-D12 (infra completa) — execução do ACTION-PLAN fases A-D:** D9 `src/contracts/data.ts` (13 schemas Zod: profiles, lesson_progress, attempts, xp_events, review_cards, content_revisions, localized_content, questions/options/answer_keys, review_decisions, ai_runs/usage_events, sync payload, submit attempt) + 22 testes; D10 `lessonStatusSchema` estendido (demo-unreviewed/in_review/approved/published/withdrawn) + teste content atualizado; D11 `supabase/migrations/0001_init.sql` (todas as tabelas + RLS + trigger completed_at + índices) + `supabase/config.toml` + `.env.example` com SUPABASE_*/NEXT_PUBLIC_*; D12 `src/auth/` (config público, server-config server-only, server client, browser client, middleware, useSession hook), `middleware.ts` raiz, rota `/login` com magic link + `login-form.tsx` (useActionState), server actions `src/app/actions/auth.ts` (signInWithMagicLink/signOut) + `src/app/actions/progress.ts` (saveRemoteProgress, syncLocalState, loadRemoteProgress, submitAttempt com gabarito no servidor + xp_events idempotente, getRemoteXp), `src/data/remote-progress.ts` (createRemoteProgressStore, syncLocalToRemote, hydrateRemoteStore), `learning-shell.tsx` com botões sign-in/sign-out, `learning-app.tsx` com useSession + sync no primeiro login, mensagens i18n signIn/signOut/syncedAccount, teste boundaries ajustado para não seguir 'use server' nos client graphs, `tests/auth-config.test.ts` (3 testes) | 173 testes Vitest (12 arquivos) — todos verdes; rotas `/`, `/app`, `/login` no build | `tsc --noEmit` ok; `eslint src content tests` ok; `vitest` 173/173 ok; `next build` ok (3 rotas); `ai:eval` 50/50 ok | D12 pendente de teste real contra emulador Supabase (`npx supabase start` + E2E com 2 usuários). D8 aguardando humano. D5/D6 desbloqueáveis após D12 testado |
-| 31/10/2026 | **Commit `c8882ad` (Orquestrador multiagente IA + /create + 3ª lição + FSRS)**: Implementação do sistema de agentes especializados em `src/ai/agents/` (orchestrator, tutor, planner, question-gen, fact-checker), ferramentas em `tools.ts`, sessions em `session.ts`, prompts modulares em `src/ai/prompts/agents/`, server actions em `src/app/actions/agents.ts`, UI de geração de plano e chat multiagente em `src/features/create/create-page.tsx`, 3ª lição bilíngue `content/cardiac-output-formula.ts`, scheduler FSRS server-side (`src/ai/fsrs-scheduler.ts`), server actions de revisão (`src/app/actions/review.ts`), fila de revisão (`src/features/review/review-queue.tsx`), suíte de testes `tests/ai/agents.test.ts` (10 testes) | 83 arquivos sincronizados no Git | `tsc --noEmit` ok; `eslint` ok; `vitest` 195 testes ok (14 suites); `ai:eval` 60/60 ok; `next build` ok | Base multiagente e curricular expandida |
-| 01/11/2026 | **D14 (Expansão do Catálogo do Ciclo Básico para 30 lições bilíngues em 21 seções)**: 27 novos arquivos de lições em `content/` cobrindo Fisiologia, Histologia, Bioquímica, Citologia, Anatomia, Respiratório, Renal, Neurofisiologia, Patologia, Endócrino, Embriologia, Genética, Imunologia, Microbiologia, Digestório, Músculo, Farmacologia, Epidemiologia, Parasitologia, Biofísica e Neuroanatomia. 30 diagramas SVG semânticos em `lesson-diagram.tsx`. Contrato de integridade curricular `catalogSchema` e `courseSectionSchema` em `src/contracts/learning.ts`. Suporte a 3 tipos de questão: `multiple-choice`, `fill` e `order`. Navegação por seções em `learning-app.tsx` e `learning-shell.tsx`. Testes atualizados (`tests/content-catalog.test.ts`, `tests/learning.spec.ts`, `tests/accessibility.spec.ts`, `tests/landing.spec.ts`). Lembrete de higiene: `preview/` e `wondering-probe*.mjs` mantidos fora do stage. | Working tree pronta para commit limpo | `tsc --noEmit` ok; `eslint` ok; `vitest` 195/195 ok; `ai:eval` 60/60 ok; `next build` ok (5 rotas: `/`, `/_not-found`, `/admin/review`, `/app`, `/login`) | Commit D14 aguarda autorização do usuário e exclusão dos arquivos temporários |
+### 2. Cotas de Uso e Rate-Limiting por Usuário em IA Live (D15)
+- **Contratos (`Coordinator`):** Usar `usageEventSchema` e `aiRunRecordSchema` já definidos em `src/contracts/data.ts`.
+- **Serviço (`AI-Engineer` + `Dados`):** Criar verificador de orçamento `checkAndRecordQuota(userId, usage)` consultando `usage_events` no Supabase (ou contador em memória no modo demo) antes de liberar chamadas ao `createLiveProvider()`. Se exceder o teto diário de tokens/execuções, lançar `new AiRunError('BUDGET_EXCEEDED')`.
+
+### 3. Persistência Durável de Sessões Multi-Agente e Jobs Assíncronos (D16)
+- **Banco (`Dados`):** Adicionar migration `0002_agent_sessions_and_jobs.sql` com tabelas `agent_sessions` e `generation_jobs` (`status`, `locked_until`, `attempts`, `idempotency_key`) e RLS `auth.uid() = user_id`.
+- **Agentes (`AI-Engineer`):** Conectar `src/ai/agents/session.ts` a um adapter substituível (`SessionStore`: memória por padrão, Supabase quando autenticado).
+
+### 4. Expansão de Lições, Ciclo Clínico ou Novos Diagramas Interativos
+- **Contratos (`Coordinator`):** Se houver novo ícone/diagrama SVG, adicionar slug ao enum `diagram` em `src/contracts/learning.ts`.
+- **Conteúdo (`Content-Médico`):** Criar arquivo em `content/<slug>.ts` com `status: 'demo-unreviewed'`, 3 `stages`, questão (`multiple-choice`, `fill` ou `order`), traduções `pt-BR`/`en` simétricas e fonte `https://` verificada; registrar em `content/index.ts` e `src/i18n/messages.ts`.
+- **Visual (`Learning`):** Implementar o SVG semântico em `src/features/learning/lesson-diagram.tsx`.

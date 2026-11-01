@@ -55,7 +55,24 @@ export const orchestratorDefinition: AgentDefinition = {
   maxOutputTokens: 1000,
 };
 
+const ID_ALIASES: Record<string, string> = {
+  'tutor': 'tutor-agent',
+  'agent-tutor': 'tutor-agent',
+  'planner': 'planner',
+  'agent-planner': 'planner',
+  'question-generator': 'question-gen',
+  'question-gen': 'question-gen',
+  'agent-question-gen': 'question-gen',
+  'fact-checker': 'fact-checker',
+  'agent-fact-checker': 'fact-checker',
+  'memory-curator': 'memory-curator',
+  'agent-memory-curator': 'memory-curator',
+  'orchestrator': 'orchestrator',
+  'agent-orchestrator': 'orchestrator',
+};
+
 export function getAgent(id: string): AgentDefinition | undefined {
-  if (id === orchestratorDefinition.id) return orchestratorDefinition;
-  return agentDefinitions.find(a => a.id === id);
+  const canonicalId = ID_ALIASES[id] ?? id;
+  if (canonicalId === orchestratorDefinition.id) return orchestratorDefinition;
+  return agentDefinitions.find(a => a.id === canonicalId);
 }

@@ -82,6 +82,9 @@ export function createTutorService(options: {
         if (typeof text !== 'string' || Buffer.byteLength(text, 'utf8') > limits.maxOutputBytes) throw new AiRunError('INVALID_OUTPUT');
         let value: unknown;
         try { value = JSON.parse(text); } catch { throw new AiRunError('INVALID_OUTPUT'); }
+        if (value && typeof value === 'object' && !Array.isArray(value) && (value as Record<string, unknown>).followUpSuggestions === null) {
+          delete (value as Record<string, unknown>).followUpSuggestions;
+        }
         const output = tutorOutputSchema.safeParse(value);
         if (!output.success) throw new AiRunError('INVALID_OUTPUT');
         if (output.data.locale !== request.studyLocale) throw new AiRunError('LOCALE_MISMATCH');

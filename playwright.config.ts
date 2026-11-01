@@ -24,14 +24,14 @@ export default defineConfig({
     {
       command: 'npm run start -- --hostname 127.0.0.1 --port 3100',
       url: 'http://127.0.0.1:3100',
-      env: { ENABLE_MEDICAL_DEMO: 'true' },
+      env: { ENABLE_MEDICAL_DEMO: 'true', PLAYWRIGHT_TEST: 'true' },
       reuseExistingServer: false,
       timeout: 30000,
     },
     {
       command: 'npm run start -- --hostname 127.0.0.1 --port 3101',
       url: 'http://127.0.0.1:3101',
-      env: { ENABLE_MEDICAL_DEMO: 'false' },
+      env: { ENABLE_MEDICAL_DEMO: 'false', PLAYWRIGHT_TEST: 'true' },
       reuseExistingServer: false,
       timeout: 30000,
     },

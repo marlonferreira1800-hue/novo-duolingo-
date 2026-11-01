@@ -170,11 +170,28 @@ export const lessonProgressSchema = z.object({
   completedAt: z.string().datetime().nullable(),
 });
 export type LessonProgress = z.infer<typeof lessonProgressSchema>;
+
+export const customProjectSchema = z.object({
+  id: z.string().min(1).max(80),
+  title: z.string().min(1).max(160),
+  goal: z.string().min(1).max(500),
+  summary: z.string().min(1).max(1000),
+  body: z.string().min(1).max(4000),
+  evidenceKeys: z.array(z.string().min(1)).min(1).max(4),
+  sectionId: z.string().min(1).max(80),
+  createdAt: z.string().datetime(),
+  generatedLessons: z.array(lessonSchema).optional(),
+});
+export type CustomProject = z.infer<typeof customProjectSchema>;
+
 export const learningStateSchema = z.object({
   version: z.literal(1),
   uiLocale: localeSchema,
   studyLocale: localeSchema,
   lessons: z.record(z.string(), lessonProgressSchema),
+  customProjects: z.array(customProjectSchema).optional(),
+  activeProjectId: z.string().nullable().optional(),
+  completedChallenges: z.record(z.string(), z.string().datetime()).optional(),
 });
 export type LearningState = z.infer<typeof learningStateSchema>;
 export interface ProgressStore {
@@ -182,6 +199,9 @@ export interface ProgressStore {
   subscribe(listener: () => void): () => void;
   setLocales(uiLocale: Locale, studyLocale: Locale): void;
   saveProgress(lesson: Lesson, progress: LessonProgress): void;
+  saveCustomProject?(project: CustomProject): void;
+  setActiveProject?(projectId: string | null): void;
+  completeChallenge?(challengeKey: string, completedAt?: string): void;
 }
 export const progressKey = (lesson: Pick<Lesson, 'id' | 'revision'>) => `${lesson.id}@${lesson.revision}`;
 

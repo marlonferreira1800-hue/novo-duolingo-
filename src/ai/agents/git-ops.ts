@@ -18,6 +18,7 @@ const BLOCKED_PATH_PATTERNS: readonly RegExp[] = [
 
 const SECRET_DIFF_PATTERNS: readonly { id: string; regex: RegExp }[] = [
   { id: 'openai-or-api-secret-key', regex: /\bsk-[a-zA-Z0-9_-]{20,}\b/ },
+  { id: 'mistral-api-secret-key', regex: /\bmstrl_[a-zA-Z0-9_-]{20,}\b/ },
   { id: 'private-key-header', regex: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/ },
   { id: 'inline-api-key-assignment', regex: /\b(?:OPENAI_API_KEY|AI_API_KEY|SUPABASE_SERVICE_ROLE_KEY)\s*=\s*['"]?[A-Za-z0-9._-]{16,}/ },
 ];

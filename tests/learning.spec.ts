@@ -77,6 +77,7 @@ test('complete lesson, correct a mistake, review, and keep exactly 10 XP', async
   await page.getByTestId('start-lesson-cardiac-output').click();
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   await page.getByRole('button', { name: 'Next', exact: true }).click();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
   await page.getByRole('button', { name: 'Check my understanding', exact: true }).click();
   await answer(page, 'output-5250');
   await page.getByTestId('complete-lesson').click();
@@ -100,12 +101,14 @@ test('opening hook is shown on the first stage of a lesson', async ({ page }) =>
 test('independent languages, stable stage and preferences after refresh', async ({ page }, info) => {
   await page.goto('/app');
   await page.getByTestId('study-locale').selectOption('en');
+  await expect(page.locator('.course-heading h1')).toContainText('Basic cycle');
   await expect(page.getByTestId('interface-locale')).toHaveValue('pt-BR');
   await page.getByTestId('start-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('pump that never stops');
   await expect(page.locator('.lesson-hook')).toContainText('pump that never stops');
   await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('How much does one ventricle pump per minute?');
+  await page.getByRole('button', { name: 'Próximo', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Two measurements, one calculation');
   await page.getByTestId('interface-locale').selectOption('en');
   await expect(page.getByRole('button', { name: 'Next', exact: true })).toBeVisible();
@@ -117,9 +120,6 @@ test('independent languages, stable stage and preferences after refresh', async 
   await expect(page.getByTestId('interface-locale')).toHaveValue('en');
   await expect(page.getByTestId('study-locale')).toHaveValue('en');
   await page.getByTestId('start-lesson-cardiac-output').click();
-  await page.getByRole('button', { name: 'Next', exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('How much does one ventricle pump per minute?');
-  await page.getByRole('button', { name: 'Next', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Two measurements, one calculation');
   await page.getByTestId('study-locale').selectOption('pt-BR');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Duas medidas, um cálculo');
@@ -181,7 +181,24 @@ test('fill-in-the-blank lesson completes with the correct term', async ({ page }
 test('sections are numbered on the learning path with per-section counters', async ({ page }) => {
   await page.goto('/app');
   await expect(page.locator('.section-header h2').first()).toHaveText('01 · Fisiologia cardiovascular');
-  await expect(page.locator('.section-header p').first()).toHaveText('0 de 5 lições concluídas');
+  await expect(page.locator('.section-header p').first()).toHaveText('0 de 10 lições concluídas');
+  await expect(page.getByTestId('discipline-picker')).toBeVisible();
+  await page.getByTestId('discipline-select').selectOption('embryology');
+  await expect(page.locator('.section-header h2')).toHaveText(['11 · Embriologia']);
+  await expect(page.locator('.section-header p')).toHaveText(['0 de 10 lições concluídas']);
+  await expect(page.getByTestId('start-lesson-embryology-fertilization')).toBeVisible();
+  await expect(page.getByTestId('start-lesson-embryology-germ-layers')).toBeVisible();
+  await expect(page.getByTestId('start-lesson-embryology-neurulation')).toBeVisible();
+  await expect(page.getByTestId('start-lesson-embryology-placenta')).toBeVisible();
+  await expect(page.getByTestId('start-lesson-embryology-organogenesis')).toBeVisible();
+  await expect(page.getByTestId('start-lesson-embryology-urogenital')).toBeVisible();
+  await page.getByTestId('discipline-select').selectOption('cell-biology');
+  await expect(page.locator('.section-header h2')).toHaveText(['04 · Biologia celular']);
+  await expect(page.locator('.section-header p')).toHaveText(['0 de 10 lições concluídas']);
+  await expect(page.getByTestId('start-lesson-cell-membrane')).toBeVisible();
+  await expect(page.getByTestId('start-lesson-cell-autophagy-proteasome')).toBeVisible();
+  await page.getByTestId('discipline-select').selectOption('all');
+  await expect(page.locator('.section-header h2')).toHaveCount(21);
 });
 
 test('library search and lesson entry are functional', async ({ page }) => {
@@ -189,6 +206,10 @@ test('library search and lesson entry are functional', async ({ page }) => {
   await page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
   await page.getByRole('textbox', { name: 'Buscar cursos', exact: true }).fill('neurologia');
   await expect(page.getByRole('status')).toHaveText('Nenhum curso corresponde à busca.');
+  await page.getByRole('textbox', { name: 'Buscar cursos', exact: true }).fill('embriologia');
+  await page.getByTestId('open-section-path-embryology').click();
+  await expect(page.locator('.section-header h2')).toHaveText(['11 · Embriologia']);
+  await page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
   await page.getByRole('textbox', { name: 'Buscar cursos', exact: true }).fill('cardiaco');
   await page.getByTestId('library-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('bomba que nunca para');
@@ -221,4 +242,37 @@ test('invalid stored data recovers with a visible notice', async ({ page }) => {
   await expect(page.getByRole('status')).toContainText('registro salvo incompatível');
   await page.getByTestId('start-lesson-cardiac-output').click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('bomba que nunca para');
+});
+
+test('wondering parity: create project (?project=), tutor drawer, advanced integration and canvas work end-to-end', async ({ page }) => {
+  test.setTimeout(90000);
+  await page.goto('/app');
+  await page.getByRole('button', { name: 'Criar', exact: true }).click();
+  await page.getByTestId('recommendation-rec-cardio').click();
+  await expect(page.getByTestId('create-draft')).toBeVisible({ timeout: 45000 });
+  await page.getByTestId('save-open-project').click();
+  await expect(page.getByTestId('active-project-banner')).toBeVisible({ timeout: 15000 });
+  await expect(page.getByTestId('active-project-section')).toBeVisible();
+  expect(page.url()).toContain('?project=proj-');
+  await page.getByTestId('clear-active-project').click();
+  await expect(page.getByTestId('active-project-banner')).toHaveCount(0);
+
+  await page.getByTestId('floating-tutor-btn').click();
+  await expect(page.getByTestId('tutor-drawer')).toBeVisible();
+  await page.getByTestId('tutor-input').fill('Como calcular o débito cardíaco?');
+  await page.getByTestId('tutor-submit').click();
+  await expect(page.getByTestId('tutor-response')).toBeVisible({ timeout: 30000 });
+  await page.getByTestId('close-tutor').click();
+
+  await page.getByTestId('start-advanced-cardio-physiology').click();
+  await expect(page.getByTestId('clinical-integration-modal')).toBeVisible();
+  await page.getByTestId('close-integration-modal').click();
+
+  await page.getByRole('button', { name: 'Canvas', exact: true }).click();
+  await expect(page.getByTestId('canvas-page')).toBeVisible();
+  await page.getByTestId('canvas-zoom-in').click();
+  await expect(page.getByTestId('canvas-zoom-value')).toHaveText('110%');
+  await page.getByTestId('canvas-input').fill('Hipótese de sobrecarga de volume');
+  await page.getByTestId('canvas-add').click();
+  await expect(page.getByText('Hipótese de sobrecarga de volume')).toBeVisible();
 });

@@ -6,7 +6,11 @@ import { lessonCatalogSchema, lessonSchema, questionItems, questionOptions } fro
 
 describe('lesson catalog', () => {
   it('contains every lesson as a valid demo-unreviewed draft with unique ids', () => {
-    expect(lessons.length).toBe(30);
+    expect(lessons.length).toBe(210);
+    expect(catalog.course.sections).toHaveLength(21);
+    for (const section of catalog.course.sections) {
+      expect(section.lessonIds).toHaveLength(10);
+    }
     expect(lessonCatalogSchema.parse(lessons)).toEqual(lessons);
     expect(new Set(lessons.map((lesson) => lesson.id)).size).toBe(lessons.length);
     expect(new Set(lessons.map((lesson) => lesson.questionId))).toHaveLength(lessons.length);

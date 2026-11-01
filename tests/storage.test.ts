@@ -275,3 +275,30 @@ describe('local progress storage', () => {
     expect(earnedXp(restored, lesson)).toBe(10);
   });
 });
+
+describe('custom projects and clinical integration challenges', () => {
+  it('saves custom projects, sets activeProjectId and records challenge completion idempotently', () => {
+    const { storage } = memoryStorage();
+    const store = createLocalProgressStore(() => storage);
+    store.saveCustomProject({
+      id: 'proj-cardio1',
+      title: 'Fisiologia do Débito Cardíaco',
+      goal: 'Estudar débito cardíaco',
+      summary: 'Resumo de estudo',
+      body: 'Corpo do rascunho',
+      evidenceKeys: ['openstax-anatomy-physiology-2e-cardiovascular@1'],
+      sectionId: 'cardio-physiology',
+      createdAt: completionTime,
+    });
+
+    expect(store.getSnapshot().activeProjectId).toBe('proj-cardio1');
+    expect(store.getSnapshot().customProjects).toHaveLength(1);
+
+    store.completeChallenge('cardio-physiology:advanced', completionTime);
+    store.completeChallenge('cardio-physiology:advanced', '2026-10-05T12:00:00.000Z');
+    expect(store.getSnapshot().completedChallenges?.['cardio-physiology:advanced']).toBe(completionTime);
+
+    store.setActiveProject(null);
+    expect(store.getSnapshot().activeProjectId).toBeNull();
+  });
+});

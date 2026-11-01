@@ -25,3 +25,5 @@ wondering-probe*.mjs
 .cache/
 .DS_Store
 Thumbs.db
+
+research/wondering/capture_project.py

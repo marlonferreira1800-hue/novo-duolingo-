@@ -2,10 +2,10 @@ import 'server-only';
 import type { DraftProvider, ProviderRequest, ProviderResponse, TokenUsage } from '@/contracts/ai';
 
 // Live provider adapter (D5). Reads credentials ONLY from server-side env vars:
-//   AI_PROVIDER (openai | anthropic | custom)
+//   AI_PROVIDER (openai | anthropic | mistral | custom)
 //   AI_API_KEY  (never exposed to browser, never logged)
 //   AI_BASE_URL (optional override)
-//   AI_MODEL    (default gpt-4o-mini)
+//   AI_MODEL    (default depends on provider, e.g. mistral-small-latest or gpt-4o-mini)
 //
 // createAiRuntime({ mode: 'live' }) fails closed until AI_API_KEY is set AND D5 is approved.
 
@@ -20,13 +20,15 @@ interface LiveConfig {
 const PROVIDER_DEFAULTS: Record<string, { baseUrl: string; model: string }> = {
   openai: { baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
   anthropic: { baseUrl: 'https://api.anthropic.com/v1', model: 'claude-3-5-haiku-latest' },
+  mistral: { baseUrl: 'https://api.mistral.ai/v1', model: 'mistral-small-latest' },
   custom: { baseUrl: '', model: '' },
 };
 
 export function getLiveConfig(): LiveConfig | null {
   const apiKey = process.env.AI_API_KEY;
   if (!apiKey) return null;
-  const provider = (process.env.AI_PROVIDER ?? 'openai').toLowerCase();
+  const inferredProvider = apiKey.startsWith('mstrl_') ? 'mistral' : 'openai';
+  const provider = (process.env.AI_PROVIDER ?? inferredProvider).toLowerCase();
   const defaults = PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.custom;
   const baseUrl = process.env.AI_BASE_URL ?? defaults.baseUrl;
   const model = process.env.AI_MODEL ?? defaults.model;

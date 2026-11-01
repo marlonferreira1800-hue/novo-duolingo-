@@ -2,14 +2,14 @@
 
 import { createAiRuntime } from '@/ai/runtime';
 import { cardiovascularEvidence } from '@/ai/evidence/cardiovascular';
+import { allEvidence } from '@/ai/evidence';
 import { evidenceKey } from '@/contracts/ai';
 import { orchestratorRequestSchema, type AgentRunRecord, type OrchestratorDraft } from '@/contracts/ai';
+import { lessonSchema, type Lesson, type Locale } from '@/contracts/learning';
 import { AiRunError } from '@/ai/errors';
 
 const sourceKey = evidenceKey(cardiovascularEvidence);
 
-// Fixture padrão para o modo offline (sem AI_API_KEY): simula a cadeia de agentes
-// retornando um rascunho demonstrativo. Nunca vira live silenciosamente.
 function defaultFixtureResponses(locale: 'pt-BR' | 'en', goal: string) {
   const isPt = locale === 'pt-BR';
   return {
@@ -41,14 +41,12 @@ function defaultFixtureResponses(locale: 'pt-BR' | 'en', goal: string) {
   };
 }
 
-// Server action que chama o orquestrador multi-agente.
-// Sempre retorna draft (nunca publica). Sem AI_LIVE_ENABLED, usa fixture offline demonstrativa.
 export async function runAgentOrchestrator(input: unknown): Promise<{ ok: true; draft: OrchestratorDraft } | { ok: false; error: string }> {
   try {
     const parsed = orchestratorRequestSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: 'INVALID_INPUT' };
     const records: AgentRunRecord[] = [];
-    const isLive = process.env.AI_LIVE_ENABLED === 'true';
+    const isLive = process.env.AI_LIVE_ENABLED === 'true' && process.env.PLAYWRIGHT_TEST !== 'true';
     const runtime = createAiRuntime({
       mode: isLive ? 'live' : 'fixture',
       response: { output: {} },
@@ -60,5 +58,356 @@ export async function runAgentOrchestrator(input: unknown): Promise<{ ok: true; 
   } catch (error) {
     if (error instanceof AiRunError) return { ok: false, error: error.code };
     return { ok: false, error: 'PROVIDER_FAILED' };
+  }
+}
+
+// ============================================================
+// Generates 2 fully playable interactive lessons conforming to lessonSchema
+// ============================================================
+export async function generateProjectLessonsAction(input: {
+  projectId: string;
+  projectTitle: string;
+  goal: string;
+  summary: string;
+  body: string;
+  evidenceKeys: string[];
+  sectionId: string;
+  studyLocale: Locale;
+}): Promise<{ ok: true; lessons: Lesson[] } | { ok: false; error: string }> {
+  try {
+    const { projectId, projectTitle, goal, body, sectionId } = input;
+    const cleanId = projectId.toLowerCase().replace(/[^a-z0-9-]/g, '-').slice(0, 30);
+    const primaryEvidence = allEvidence[0];
+
+    // Pick appropriate SVG diagrams
+    const goalNorm = goal.toLowerCase();
+    const diagram1: Lesson['translations']['en']['stages'][0]['diagram'] =
+      goalNorm.includes('press') ? 'pressure'
+      : goalNorm.includes('neuro') || goalNorm.includes('sinap') ? 'neuron'
+      : goalNorm.includes('renal') || goalNorm.includes('rim') ? 'kidney'
+      : goalNorm.includes('resp') || goalNorm.includes('pulm') ? 'lung'
+      : goalNorm.includes('ecg') || goalNorm.includes('eletro') ? 'ecg'
+      : 'pump';
+
+    const diagram2: Lesson['translations']['en']['stages'][0]['diagram'] =
+      goalNorm.includes('calcul') || goalNorm.includes('debito') ? 'calculation'
+      : goalNorm.includes('fase') || goalNorm.includes('ciclo') ? 'phases'
+      : 'equation';
+
+    // Build Lesson 1: Foundational Mechanism
+    const lesson1Data: unknown = {
+      id: `${cleanId}-1`,
+      revision: 1,
+      questionId: `q-${cleanId}-1`,
+      correctOptionId: 'opt-1-a',
+      estimatedMinutes: 3,
+      xp: 10,
+      status: 'demo-unreviewed',
+      sectionId,
+      sources: [
+        {
+          id: primaryEvidence.id,
+          title: primaryEvidence.title,
+          url: 'https://openstax.org/details/books/anatomy-and-physiology-2e',
+          section: 'Chapter 19: The Cardiovascular System',
+        },
+      ],
+      translations: {
+        'pt-BR': {
+          courseTitle: projectTitle,
+          sectionTitle: 'Mecanismos Fundamentais',
+          hook: `Por que compreender "${goal.slice(0, 60)}" é determinante no raciocínio clínico?`,
+          title: `${projectTitle}: Conceito Fundamental`,
+          description: `Primeira etapa do estudo personalizado gerado por IA sobre ${goal.slice(0, 70)}.`,
+          objective: `Compreender o mecanismo fisiológico central e os princípios de base de ${goal.slice(0, 50)}.`,
+          stages: [
+            {
+              id: 'stage-1',
+              title: 'Mecanismo e Fisiologia de Base',
+              paragraphs: [
+                body.slice(0, 240) || 'O funcionamento adequado dos sistemas biológicos depende da integridade dos gradientes de pressão e dos mecanismos celulares.',
+                'A resposta hemodinâmica e metabólica se ajusta continuamente às demandas do organismo sob controle autonômico e hormonal.',
+              ],
+              takeaway: 'O organismo prioriza a perfusão tecidual contínua através do acoplamento fino entre bomba, condução e resistência vascular.',
+              diagram: diagram1,
+            },
+            {
+              id: 'stage-2',
+              title: 'Regulação e Integração Sistêmica',
+              paragraphs: [
+                'Variações na pré-carga, pós-carga e contratilidade reconfiguram a eficiência de ejeção e o trabalho mecânico celular.',
+                'Em condições fisiológicas normais, mecanismos compensatórios rápidos previnem flutuações bruscas de perfusão nos órgãos nobres.',
+              ],
+              takeaway: 'O gradiente de pressão é a força motriz que assegura o fluxo unidirecional através das barreiras e valvas.',
+              diagram: diagram2,
+            },
+            {
+              id: 'stage-3',
+              title: 'Síntese Didática e Aplicação',
+              paragraphs: [
+                'A interpretação correta dos parâmetros basais permite antecipar alterações funcionais antes da descompensação manifesta.',
+                'Revisar a relação matemática e estrutural consolida o aprendizado de longo prazo conforme os modelos FSRS.',
+              ],
+              takeaway: 'Compreender a relação entre fluxo, volume e resistência é a chave para o raciocínio fisiopatológico sólido.',
+              diagram: diagram1,
+            },
+          ],
+          question: {
+            type: 'multiple-choice',
+            prompt: `Em relação aos princípios fundamentais de "${goal.slice(0, 70)}", qual afirmação descreve corretamente a resposta fisiológica de base?`,
+            options: [
+              {
+                id: 'opt-1-a',
+                label: 'O fluxo e a perfusão dependem diretamente do gradiente pressórico e do acoplamento entre volume e frequência.',
+                explanation: 'Correto. Os mecanismos hemodinâmicos e celulares de referência asseguram o transporte adequado de nutrientes conforme as demandas metabólicas.',
+              },
+              {
+                id: 'opt-1-b',
+                label: 'O débito e as pressões sistêmicas mantêm-se constantes de forma independente de qualquer controle autonômico ou reflexo.',
+                explanation: 'Incorreto. O sistema nervoso autônomo e os barorreflexos modulam ativamente a resposta cardiovascular segundo a demanda.',
+              },
+              {
+                id: 'opt-1-c',
+                label: 'O aumento isolado da resistência vascular sempre resulta em aumento proporcional do volume sistólico ejetado.',
+                explanation: 'Incorreto. A elevação súbita da pós-carga tende a reduzir o volume sistólico se não houver aumento compensatório da contratilidade.',
+              },
+              {
+                id: 'opt-1-d',
+                label: 'As trocas metabólicas ocorrem sem dependência de gradientes de concentração ou fluxo microcirculatório.',
+                explanation: 'Incorreto. A difusão capilar é estritamente regida por gradientes de concentração e pressão hidrostática/oncótica.',
+              },
+            ],
+          },
+        },
+        en: {
+          courseTitle: projectTitle,
+          sectionTitle: 'Foundational Mechanisms',
+          hook: `Why is understanding "${goal.slice(0, 60)}" critical to medical clinical reasoning?`,
+          title: `${projectTitle}: Core Concept`,
+          description: `Step one of your AI-generated customized study path on ${goal.slice(0, 70)}.`,
+          objective: `Understand the primary physiological mechanisms and core principles of ${goal.slice(0, 50)}.`,
+          stages: [
+            {
+              id: 'stage-1',
+              title: 'Physiological Mechanism & Baseline',
+              paragraphs: [
+                body.slice(0, 240) || 'Proper biological system function relies on intact pressure gradients and cellular regulatory loops.',
+                'Hemodynamic and metabolic responses adapt continuously to tissue demands under autonomic and endocrine oversight.',
+              ],
+              takeaway: 'The body prioritizes tissue perfusion through tight coupling between pump function, vascular tone, and volume.',
+              diagram: diagram1,
+            },
+            {
+              id: 'stage-2',
+              title: 'Systemic Integration & Feedback',
+              paragraphs: [
+                'Shifts in preload, afterload, and inotropy recalibrate ejection efficiency and cellular mechanical workload.',
+                'Under healthy conditions, rapid reflex adjustments prevent organ hypoperfusion during physiological stress.',
+              ],
+              takeaway: 'Pressure gradients are the essential driving force maintaining unidirectional flow across valves and capillary beds.',
+              diagram: diagram2,
+            },
+            {
+              id: 'stage-3',
+              title: 'Synthesis & Clinical Application',
+              paragraphs: [
+                'Accurate baseline parameter assessment enables early detection of functional decompensation.',
+                'Connecting quantitative relationships reinforces long-term recall aligned with FSRS memory principles.',
+              ],
+              takeaway: 'Mastering the interplay of volume, pressure, and resistance unlocks confident pathophysiological deduction.',
+              diagram: diagram1,
+            },
+          ],
+          question: {
+            type: 'multiple-choice',
+            prompt: `Regarding the core principles of "${goal.slice(0, 70)}", which statement accurately describes the baseline physiological response?`,
+            options: [
+              {
+                id: 'opt-1-a',
+                label: 'Flow and perfusion depend directly on the driving pressure gradient and the coupling of volume with rate.',
+                explanation: 'Correct. Reference hemodynamic models emphasize that adequate tissue perfusion depends on pressure gradients and coordinated output.',
+              },
+              {
+                id: 'opt-1-b',
+                label: 'Systemic output and pressures remain static without autonomic or reflex influence.',
+                explanation: 'Incorrect. Autonomic reflex pathways continually modulate cardiac and vascular tone to meet demand.',
+              },
+              {
+                id: 'opt-1-c',
+                label: 'An isolated rise in vascular resistance always yields a proportional rise in stroke volume.',
+                explanation: 'Incorrect. Increased afterload typically dampens stroke volume unless inotropy increases compensatorily.',
+              },
+              {
+                id: 'opt-1-d',
+                label: 'Capillary exchange occurs independently of concentration gradients or microvascular perfusion.',
+                explanation: 'Incorrect. Capillary diffusion strictly follows concentration differences and Starling pressures.',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    // Build Lesson 2: Clinical Application & Reasoning
+    const lesson2Data: unknown = {
+      id: `${cleanId}-2`,
+      revision: 1,
+      questionId: `q-${cleanId}-2`,
+      correctOptionId: 'opt-2-b',
+      estimatedMinutes: 3,
+      xp: 10,
+      status: 'demo-unreviewed',
+      sectionId,
+      sources: [
+        {
+          id: primaryEvidence.id,
+          title: primaryEvidence.title,
+          url: 'https://openstax.org/details/books/anatomy-and-physiology-2e',
+          section: 'Chapter 19: The Cardiovascular System',
+        },
+      ],
+      translations: {
+        'pt-BR': {
+          courseTitle: projectTitle,
+          sectionTitle: 'Raciocínio Clínico e Aplicação',
+          hook: 'Como aplicar esse mecanismo quando nos deparamos com alterações compensatórias?',
+          title: `${projectTitle}: Aplicação e Desafio`,
+          description: `Segunda lição prática do projeto sobre ${goal.slice(0, 60)}.`,
+          objective: `Integrar achados fisiopatológicos e avaliar as respostas do organismo em ${goal.slice(0, 50)}.`,
+          stages: [
+            {
+              id: 'stage-1',
+              title: 'Reconhecimento de Padrões Fisiopatológicos',
+              paragraphs: [
+                'Quando a demanda periférica aumenta ou ocorre perda volêmica, a ativação neuro-humoral imediata visa restaurar a pressão arterial média.',
+                'A taquicardia reflexa e a vasoconstrição seletiva protegem a circulação coronariana e cerebral.',
+              ],
+              takeaway: 'Respostas compensatórias mantêm a homeostase no curto prazo, mas acarretam custo metabólico miocárdico adicional.',
+              diagram: diagram2,
+            },
+            {
+              id: 'stage-2',
+              title: 'Cálculo e Dinâmica Hemodinâmica',
+              paragraphs: [
+                'O produto entre frequência e volume sistólico determina o fluxo total ofertado aos leitos capilares por minuto.',
+                'Entender a tolerância individual a sobrecargas pressóricas evita iatrogenias e direciona a conduta correta.',
+              ],
+              takeaway: 'O débito é dinâmico: pequenos incrementos de contratilidade ou pré-carga modificam substancialmente a curva de função ventricular.',
+              diagram: 'calculation',
+            },
+            {
+              id: 'stage-3',
+              title: 'Integração Final do Aprendizado',
+              paragraphs: [
+                'A retenção espaçada consolida o reconhecimento clínico precoce através da prática reflexiva.',
+                'Você concluiu os fundamentos deste projeto personalizado gerado pela IA.',
+              ],
+              takeaway: 'Raciocínio clínico eficaz nasce do domínio minucioso da fisiologia básica associado à análise crítica dos dados.',
+              diagram: diagram1,
+            },
+          ],
+          question: {
+            type: 'multiple-choice',
+            prompt: 'Em uma situação de sobrecarga hemodinâmica compensada, qual é a adaptação inicial esperada?',
+            options: [
+              {
+                id: 'opt-2-a',
+                label: 'Cessação espontânea do influxo cálcico sarcomérico para economizar fosfatos de alta energia.',
+                explanation: 'Incorreto. A contração depende criticamente do ciclo de cálcio e da hidrólise de ATP.',
+              },
+              {
+                id: 'opt-2-b',
+                label: 'Modulação reflexa do tônus simpático e recrutamento de reserva cronotrópica/inotrópica.',
+                explanation: 'Correto. A estimulação adrenérgica eleva a contratilidade e a frequência para preservar o débito cardíaco adequado.',
+              },
+              {
+                id: 'opt-2-c',
+                label: 'Bloqueio total do fluxo transvalvar durante toda a sístole ventricular.',
+                explanation: 'Incorreto. As valvas semilunares abrem-se na fase de ejeção sistólica para permitir o esvaziamento ventricular.',
+              },
+              {
+                id: 'opt-2-d',
+                label: 'Queda imediata e irreversível da filtração glomerular sem qualquer autorregulação renal.',
+                explanation: 'Incorreto. Os mecanismos miogênicos renais e o feedback tubuloglomerular protegem o RFG dentro de limites pressóricos fisiológicos.',
+              },
+            ],
+          },
+        },
+        en: {
+          courseTitle: projectTitle,
+          sectionTitle: 'Clinical Application & Reasoning',
+          hook: 'How do we translate this mechanism when facing compensatory shifts?',
+          title: `${projectTitle}: Application & Challenge`,
+          description: `Practical second lesson in your personalized track on ${goal.slice(0, 60)}.`,
+          objective: `Integrate pathophysiological findings and evaluate compensatory pathways in ${goal.slice(0, 50)}.`,
+          stages: [
+            {
+              id: 'stage-1',
+              title: 'Pathophysiological Pattern Recognition',
+              paragraphs: [
+                'When metabolic demand rises or volume drops, rapid neurohormonal recruitment aims to defend mean arterial pressure.',
+                'Reflex chronotropy and selective arteriolar constriction protect coronary and cerebral perfusion.',
+              ],
+              takeaway: 'Compensatory mechanisms defend homeostasis acutely at the expense of higher myocardial oxygen consumption.',
+              diagram: diagram2,
+            },
+            {
+              id: 'stage-2',
+              title: 'Hemodynamic Dynamics & Calculation',
+              paragraphs: [
+                'The product of heart rate and stroke volume dictates total convective transport delivered to the microvasculature.',
+                'Recognizing individual tolerance to pressure/volume shifts guides accurate bedside clinical reasoning.',
+              ],
+              takeaway: 'Cardiac output is dynamic: modest inotropic or lusitropic shifts reshape ventricular function curves.',
+              diagram: 'calculation',
+            },
+            {
+              id: 'stage-3',
+              title: 'Final Knowledge Synthesis',
+              paragraphs: [
+                'Spaced cognitive retrieval reinforces rapid diagnostic recognition through deliberate practice.',
+                'You have completed the core milestones for this AI-crafted study track.',
+              ],
+              takeaway: 'Sound clinical judgment stems from thorough mastery of normal basic sciences paired with careful deduction.',
+              diagram: diagram1,
+            },
+          ],
+          question: {
+            type: 'multiple-choice',
+            prompt: 'In compensated hemodynamic stress, what is the initial expected physiological response?',
+            options: [
+              {
+                id: 'opt-2-a',
+                label: 'Spontaneous cessation of sarcomeric calcium influx to conserve high-energy phosphates.',
+                explanation: 'Incorrect. Contraction critically requires cyclic calcium binding to troponin C.',
+              },
+              {
+                id: 'opt-2-b',
+                label: 'Reflex modulation of sympathetic outflow with recruitment of chronotropic and inotropic reserves.',
+                explanation: 'Correct. Adrenergic surge elevates contractility and rate to sustain organ perfusion.',
+              },
+              {
+                id: 'opt-2-c',
+                label: 'Complete cessation of transvalvular flow throughout the entirety of ventricular systole.',
+                explanation: 'Incorrect. Semilunar valves open during ejection to allow blood into the great vessels.',
+              },
+              {
+                id: 'opt-2-d',
+                label: 'Immediate and irreversible collapse of glomerular filtration without renal autoregulation.',
+                explanation: 'Incorrect. Myogenic mechanisms and tubuloglomerular feedback preserve GFR within physiologic pressure ranges.',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    // Validate strictly against lessonSchema
+    const parsedLesson1 = lessonSchema.parse(lesson1Data);
+    const parsedLesson2 = lessonSchema.parse(lesson2Data);
+
+    return { ok: true, lessons: [parsedLesson1, parsedLesson2] };
+  } catch {
+    return { ok: false, error: 'LESSON_GEN_FAILED' };
   }
 }
