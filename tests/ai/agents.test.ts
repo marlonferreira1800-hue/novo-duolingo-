@@ -5,6 +5,18 @@ import { cardiovascularEvidence } from '../../src/ai/evidence/cardiovascular';
 import { createAgentFixtureProvider } from '../../src/ai/providers/agent-fixture';
 import { createAgentOrchestrator } from '../../src/ai/agents/orchestrator';
 import { executeTool, searchEvidence, computeExample } from '../../src/ai/agents/tools';
+import {
+  clearMemoryStoreForTests,
+  recordEpisodicMemory,
+  upsertSemanticConcept,
+  updateProceduralMemory,
+  recallCognitiveMemory,
+} from '../../src/ai/agents/memory';
+import {
+  auditAndPlanGitChanges,
+  classifyFileOwner,
+  isBlockedGitPath,
+} from '../../src/ai/agents/git-ops';
 import { createAiRuntime } from '../../src/ai/runtime';
 import { AiRunError } from '../../src/ai/errors';
 import { lessons } from '../../content';
@@ -161,4 +173,97 @@ describe('agent tools (audited, no external access)', () => {
 
 it('live agent mode fails closed without approval', () => {
   expect(() => createAiRuntime({ mode: 'live' })).toThrow(AiRunError);
+});
+
+describe('3-tier cognitive memory curator & engine', () => {
+  beforeEach(() => {
+    clearMemoryStoreForTests();
+  });
+
+  it('records episodic, semantic and procedural memory and prunes lowest-salience episodes', () => {
+    const sessionId = '11111111-2222-4333-8444-555555555555';
+    // Insert 20 episodes, one with very low salience (0.1)
+    recordEpisodicMemory(sessionId, { role: 'planner', summary: 'Low salience noise', salience: 0.1 });
+    for (let i = 0; i < 19; i += 1) {
+      recordEpisodicMemory(sessionId, { role: 'tutor', summary: `High salience step ${i}`, salience: 0.9, conceptIds: ['cardiac-output'] });
+    }
+    // 21st episode should evict the 0.1 salience episode
+    recordEpisodicMemory(sessionId, { role: 'fact-checker', summary: 'Verified citations', salience: 0.95, conceptIds: ['cardiac-output'] });
+
+    upsertSemanticConcept(sessionId, {
+      conceptId: 'stroke-volume',
+      lessonId: 'cardiac-output',
+      masteryDelta: 0.25,
+      evidenceKeys: [sourceKey],
+    });
+    updateProceduralMemory(sessionId, {
+      questionId: 'q-co-1',
+      lessonId: 'cardiac-output',
+      grade: 4,
+    });
+
+    const snapshot = recallCognitiveMemory(sessionId);
+    expect(snapshot.episodic.length).toBe(20);
+    expect(snapshot.episodic.some(e => e.summary === 'Low salience noise')).toBe(false);
+    expect(snapshot.semantic[0].conceptId).toBe('stroke-volume');
+    expect(snapshot.semantic[0].masteryScore).toBe(0.75);
+    expect(snapshot.procedural[0].questionId).toBe('q-co-1');
+    expect(snapshot.procedural[0].recommendedAction).toBe('advance');
+    expect(snapshot.consolidatedCount).toBe(2);
+  });
+
+  it('integrates memory-curator agent in orchestrator chain with consolidate_memory tool', async () => {
+    const { orchestrator, onRun } = setup({
+      'agent-planner': { action: 'Planejou estudo.', handoffTo: 'memory-curator', tool: 'recall_memory', toolInput: {} },
+      'agent-memory-curator': {
+        action: 'Consolidou conceito de débito cardíaco.',
+        handoffTo: 'fact-checker',
+        tool: 'consolidate_memory',
+        toolInput: { conceptId: 'cardiac-output', lessonId: 'cardiac-output', masteryDelta: 0.2, questionId: 'q1', grade: 1 },
+      },
+      'agent-fact-checker': { action: 'Verificou fontes.' },
+      'agent-orchestrator': makeOrchestratorOutput('pt-BR'),
+    });
+
+    const draft = await orchestrator.run({ goal: 'Revisar débito cardíaco', studyLocale: 'pt-BR', level: 'basic' });
+    expect(draft.memorySnapshot).toBeDefined();
+    expect(draft.memorySnapshot?.semantic.length).toBe(1);
+    expect(draft.memorySnapshot?.procedural[0]?.recommendedAction).toBe('review-now');
+    expect(onRun.mock.calls[0][0].memoryOps).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('autonomous GitOps agent planner & security gate', () => {
+  it('classifies domain ownership and blocks secrets, .env and browser probes', () => {
+    expect(classifyFileOwner('src/contracts/ai.ts')).toBe('coordinator');
+    expect(classifyFileOwner('src/ai/agents/memory.ts')).toBe('ai-engineer');
+    expect(classifyFileOwner('content/anatomy-bone.ts')).toBe('content-medico');
+    expect(classifyFileOwner('src/features/learning/lesson-reader.tsx')).toBe('learning');
+    expect(classifyFileOwner('src/app/globals.css')).toBe('ui-ux');
+    expect(classifyFileOwner('tests/ai/agents.test.ts')).toBe('qa');
+
+    expect(isBlockedGitPath('.env.local')).toBe(true);
+    expect(isBlockedGitPath('.env.example')).toBe(false);
+    expect(isBlockedGitPath('wondering-probe.mjs')).toBe(true);
+    expect(isBlockedGitPath('preview/shot.png')).toBe(true);
+
+    const plan = auditAndPlanGitChanges({
+      files: ['src/ai/agents/memory.ts', 'content/anatomy-bone.ts', '.env.local', 'wondering-probe.mjs'],
+      diffText: '+ const safe = true;',
+    });
+    expect(plan.safe).toBe(true);
+    expect(plan.blockedFiles).toEqual(['.env.local', 'wondering-probe.mjs']);
+    expect(plan.commitGroups.map(g => g.owner)).toEqual(['ai-engineer', 'content-medico']);
+  });
+
+  it('fails closed when diff contains secrets or medical review gate bypass', () => {
+    const fakeKey = ['sk', '1234567890abcdefghijklmno'].join('-');
+    const leaked = auditAndPlanGitChanges({
+      files: ['src/ai/runtime.ts'],
+      diffText: `+ OPENAI_API_KEY="${fakeKey}"\n+ medicallyReviewed: true`,
+    });
+    expect(leaked.safe).toBe(false);
+    expect(leaked.secretFindings.length).toBeGreaterThan(0);
+    expect(leaked.invariantViolations).toContain('ai-output-cannot-claim-medically-reviewed');
+  });
 });
